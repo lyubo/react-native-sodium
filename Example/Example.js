@@ -8,20 +8,34 @@ import {
 import Sodium from 'react-native-sodium'
 
 export default  class Example extends Component {
-  render() {
+
+  state: {
+    sodiumVersion: string,
+    sodiumError: string
+   }
+
+  constructor(props) {
+    super(props);
+    this.state = {sodiumVersion: "n/a", sodiumError:""}
+  }
+
+  componentWillMount() {
     Sodium.sodium_version_string()
-      .then((data) => console.log(data))
-      .catch((error) => console.log(error))
-    Sodium.crypto_box_keypair()
-      .then(({publicKey,secretKey}) => console.log("pk ->",publicKey,"\nsk ->",secretKey))
-      .catch((error) => console.log(error))
+      .then((data) => this.setState({sodiumVersion: data}))
+      .catch((error) => this.setState({sodiumError: error}))
+  }
+
+  render() {
+    // Sodium.crypto_box_keypair()
+    //   .then(({publicKey,secretKey}) => console.log("pk ->",publicKey,"\nsk ->",secretKey))
+    //   .catch((error) => console.log(error))
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
           Welcome to React Native!
         </Text>
         <Text style={styles.instructions}>
-          To get started, edit index.android.js
+          Sodium Version: {this.state.sodiumVersion}
         </Text>
         <Text style={styles.instructions}>
           Double tap R on your keyboard to reload,{'\n'}
