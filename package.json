@@ -1,0 +1,20 @@
+{
+  "name": "react-native-sodium",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/lyubo/react-native-sodium.git"
+  },
+  "version": "0.1.0",
+  "description": "The Sodium crypto library for React Native.",
+  "author": "Lyubomir Ivanov",
+  "main": "index.js",
+  "nativePackage": true,
+  "license": "MIT",
+  "homepage": "https://github.com/lyubo/react-native-sodium",
+  "keywords": [
+    "react-native",
+    "crypto",
+    "nacl",
+    "sodium"
+  ]
+}

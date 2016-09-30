@@ -1,0 +1,21 @@
+# Sodium
+libsodium
+
+# Android/IJ
+#
+android/build
+android/.externalNativeBuild
+android/lib
+*.iml
+.idea
+.gradle
+local.properties
+
+# Xcode
+ios/build
+project.xcworkspace
+xcuserdata
+
+# OSX
+#
+.DS_Store

@@ -1,0 +1,5 @@
+rootProject.name = 'Example'
+
+include ':app'
+include ':react-native-sodium'
+project(':react-native-sodium').projectDir = new File(rootProject.projectDir, '../../android')
