@@ -48,7 +48,9 @@ mkdir -p libsodium
 rm -Rf libsodium/*
 
 mv $srcdir/libsodium-android-* libsodium/
-mv $srcdir/libsodium-ios libsodium/
+if [[ "$platform" == 'Darwin' ]]; then
+  mv $srcdir/libsodium-ios libsodium/
+fi
 
 
 # --------------------------
