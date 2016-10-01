@@ -8,7 +8,7 @@ srcdir=`basename $srcfile .tar.gz`
 # Download and verify source
 # --------------------------
 [ -f $srcfile ] || curl https://download.libsodium.org/libsodium/releases/$srcfile > $srcfile
-gpg --keyserver-options auto-key-retrieve --verify $sigfile $srcfile || exit 1
+gpg --no-default-keyring --keyring `pwd`/trusted.gpg --verify $sigfile $srcfile || exit 1
 
 
 # --------------------------
