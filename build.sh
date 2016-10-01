@@ -22,8 +22,10 @@ cd $srcdir
 # --------------------------
 # iOS build
 # --------------------------
-dist-build/ios.sh
-
+platform=`uname`
+if [[ "$platform" == 'Darwin' ]]; then
+  dist-build/ios.sh
+fi
 
 # --------------------------
 # Android build
