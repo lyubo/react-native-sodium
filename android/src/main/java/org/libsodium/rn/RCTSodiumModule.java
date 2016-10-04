@@ -43,14 +43,14 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void crypto_box_keypair(final Promise p){
         try {
-            byte[] publicKey = new byte[Sodium.PUBLICKEY_BYTES];
-            byte[] secretKey = new byte[Sodium.SECRETKEY_BYTES];
+            byte[] pk = new byte[Sodium.crypto_box_PUBLICKEYBYTES];
+            byte[] sk = new byte[Sodium.crypto_box_SECRETKEYBYTES];
 
-            Sodium.crypto_box_keypair(publicKey, secretKey);
+            Sodium.crypto_box_keypair(pk, sk);
 
             WritableNativeMap result = new WritableNativeMap();
-            result.putString("secretKey",Base64.encodeToString(secretKey,Base64.DEFAULT));
-            result.putString("publicKey",Base64.encodeToString(publicKey,Base64.DEFAULT));
+            result.putString("pk",Base64.encodeToString(pk,Base64.NO_WRAP));
+            result.putString("sk",Base64.encodeToString(sk,Base64.NO_WRAP));
             p.resolve(result);
         }
         catch (Throwable t) {

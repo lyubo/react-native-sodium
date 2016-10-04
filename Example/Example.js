@@ -26,9 +26,12 @@ export default  class Example extends Component {
   }
 
   render() {
-    // Sodium.crypto_box_keypair()
-    //   .then(({publicKey,secretKey}) => console.log("pk ->",publicKey,"\nsk ->",secretKey))
-    //   .catch((error) => console.log(error))
+    Sodium.crypto_box_keypair()
+      .then(({pk,sk}) => {
+        console.log("pk -> '" + pk + "'\nsk -> '" + sk + "'")
+        console.log("pkl -> " + pk.length + ", skl -> " + sk.length)
+      })
+      .catch((error) => console.log(error))
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>

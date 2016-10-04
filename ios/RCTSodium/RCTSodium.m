@@ -35,10 +35,10 @@ RCT_EXPORT_METHOD(crypto_box_keypair:(RCTPromiseResolveBlock)resolve reject:(RCT
     if ( result == 0) {
         NSString *pk64 = [[NSData dataWithBytesNoCopy:pk length:sizeof(pk) freeWhenDone:NO]  base64EncodedStringWithOptions:0];
         NSString *sk64 = [[NSData dataWithBytesNoCopy:sk length:sizeof(sk) freeWhenDone:NO]  base64EncodedStringWithOptions:0];
-        resolve(@{@"publicKey":pk64, @"secretKey":sk64});
+        resolve(@{@"pk":pk64, @"sk":sk64});
     }
     else
-        reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Error"));
+        reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Error")); //TODO: return result
 }
 
 @end

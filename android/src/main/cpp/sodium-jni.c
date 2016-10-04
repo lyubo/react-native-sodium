@@ -21,15 +21,15 @@ JNIEXPORT jstring JNICALL Java_org_libsodium_jni_SodiumJNI_sodium_1version_1stri
   return (*jenv)->NewStringUTF(jenv, (const char *)result);
 }
 
-JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1keypair(JNIEnv *jenv, jclass jcls, jbyteArray jarg1, jbyteArray jarg2) {
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1keypair(JNIEnv *jenv, jclass jcls, jbyteArray jpk, jbyteArray jsk) {
   int result;
 
   (void)jenv;
-  unsigned char *arg1 = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, jarg1, 0);
-  unsigned char *arg2 = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, jarg2, 0);
-  result = (int)crypto_box_keypair(arg1,arg2);
-  (*jenv)->ReleaseByteArrayElements(jenv, jarg1, (jbyte *) arg1, 0);
-  (*jenv)->ReleaseByteArrayElements(jenv, jarg2, (jbyte *) arg2, 0);
+  unsigned char *pk = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, jpk, 0);
+  unsigned char *sk = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, jsk, 0);
+  result = (int)crypto_box_keypair(pk, sk);
+  (*jenv)->ReleaseByteArrayElements(jenv, jpk, (jbyte *) pk, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, jsk, (jbyte *) sk, 0);
   return (jint)result;
 }
 
