@@ -1,8 +1,10 @@
+// @flow
+
 import React, { Component } from 'react';
 import {
   StyleSheet,
   Text,
-  View,NativeModules
+  ScrollView,View,NativeModules
 } from 'react-native';
 
 import Sodium from 'react-native-sodium'
@@ -10,41 +12,68 @@ import Sodium from 'react-native-sodium'
 export default  class Example extends Component {
 
   state: {
-    sodiumVersion: string,
+    sodium_version_string: string,
+    randombytes_random: number,
+    randombytes_uniform: number,
+    randombytes_buf: string,
+    crypto_box_keypair: {pk:string, sk: string},
     sodiumError: string
    }
 
   constructor(props) {
     super(props);
-    this.state = {sodiumVersion: "n/a", sodiumError:""}
+    this.state = {
+      sodium_version_string: "n/a",
+      crypto_box_keypair:{},
+      sodiumError:""}
   }
 
   componentWillMount() {
     Sodium.sodium_version_string()
-      .then((data) => this.setState({sodiumVersion: data}))
+      .then((version) => this.setState({sodium_version_string: version}))
       .catch((error) => this.setState({sodiumError: error}))
+
+    // Random data generation
+    Sodium.randombytes_random()
+      .then((value) => this.setState({randombytes_random: value}))
+
+    Sodium.randombytes_uniform(10)
+      .then((value) => this.setState({randombytes_uniform:value}))
+
+    Sodium.randombytes_buf(10)
+      .then((value) => this.setState({randombytes_buf:value}))
+
+    Sodium.randombytes_close()
+    Sodium.randombytes_stir()
+
+    // Public-key cryptography - authenticated encryption
+    Sodium.crypto_box_keypair()
+      .then(({pk,sk}) => this.setState({crypto_box_keypair:{pk,sk}}))
+
   }
 
   render() {
-    Sodium.crypto_box_keypair()
-      .then(({pk,sk}) => {
-        console.log("pk -> '" + pk + "'\nsk -> '" + sk + "'")
-        console.log("pkl -> " + pk.length + ", skl -> " + sk.length)
-      })
-      .catch((error) => console.log(error))
     return (
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         <Text style={styles.welcome}>
-          Welcome to React Native!
+          Salted React Native!
         </Text>
         <Text style={styles.instructions}>
-          Sodium Version: {this.state.sodiumVersion}
+          sodium_version_string: {this.state.sodium_version_string}
         </Text>
         <Text style={styles.instructions}>
-          Double tap R on your keyboard to reload,{'\n'}
-          Shake or press menu button for dev menu
+          randombytes_random: {this.state.randombytes_random}
         </Text>
-      </View>
+        <Text style={styles.instructions}>
+          randombytes_uniform: {this.state.randombytes_uniform}
+        </Text>
+        <Text style={styles.instructions}>
+          randombytes_buf: {this.state.randombytes_buf}
+        </Text>
+        <Text style={styles.instructions}>
+          crypto_box_keypair: {"\n\tpk:" + this.state.crypto_box_keypair.pk + "\n\tsk:" + this.state.crypto_box_keypair.sk}
+        </Text>
+      </ScrollView>
     );
   }
 }
@@ -52,8 +81,8 @@ export default  class Example extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+//    justifyContent: 'center',
+//    alignItems: 'center',
     backgroundColor: '#F5FCFF',
   },
   welcome: {
@@ -62,7 +91,7 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   instructions: {
-    textAlign: 'center',
+    textAlign: 'left',
     color: '#333333',
     marginBottom: 5,
   },

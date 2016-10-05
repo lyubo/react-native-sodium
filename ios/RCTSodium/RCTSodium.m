@@ -23,11 +23,51 @@ RCT_EXPORT_MODULE();
     isInitialized = sodium_init() != -1;
 }
 
+// *****************************************************************************
+// * Sodium-specific functions
+// *****************************************************************************
 RCT_EXPORT_METHOD(sodium_version_string:(RCTPromiseResolveBlock)resolve reject:(__unused RCTPromiseRejectBlock)reject)
 {
     resolve(@(sodium_version_string()));
 }
 
+
+// *****************************************************************************
+// * Random data generation
+// *****************************************************************************
+RCT_EXPORT_METHOD(randombytes_random:(RCTPromiseResolveBlock)resolve reject:(__unused RCTPromiseRejectBlock)reject)
+{
+    resolve(@(randombytes_random()));
+}
+
+RCT_EXPORT_METHOD(randombytes_uniform:(NSUInteger)upper_bound resolve:(RCTPromiseResolveBlock)resolve reject:(__unused RCTPromiseRejectBlock)reject)
+{
+    resolve(@(randombytes_uniform((uint32_t)upper_bound)));
+}
+
+RCT_EXPORT_METHOD(randombytes_buf:(NSUInteger)size resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+    unsigned char buf[(u_int32_t)size];
+    randombytes_buf(buf,(u_int32_t)size);
+    NSString *buf64 = [[NSData dataWithBytesNoCopy:buf length:sizeof(buf) freeWhenDone:NO]  base64EncodedStringWithOptions:0];
+    resolve(buf64);
+}
+
+RCT_EXPORT_METHOD(randombytes_close)
+{
+    randombytes_close();
+}
+
+RCT_EXPORT_METHOD(randombytes_stir)
+{
+    randombytes_stir();
+}
+
+
+
+// *****************************************************************************
+// * Public-key cryptography - authenticated encryption
+// *****************************************************************************
 RCT_EXPORT_METHOD(crypto_box_keypair:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
     unsigned char pk[crypto_box_PUBLICKEYBYTES],sk[crypto_box_PUBLICKEYBYTES];
