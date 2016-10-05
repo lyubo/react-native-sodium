@@ -1,11 +1,11 @@
 // @flow
 
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 import {
   StyleSheet,
   Text,
-  ScrollView,View,NativeModules
-} from 'react-native';
+  ScrollView,View,TouchableHighlight,NativeModules
+} from 'react-native'
 
 import Sodium from 'react-native-sodium'
 
@@ -21,14 +21,14 @@ export default  class Example extends Component {
    }
 
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       sodium_version_string: "n/a",
       crypto_box_keypair:{},
       sodiumError:""}
   }
 
-  componentWillMount() {
+  _testSodium() {
     Sodium.sodium_version_string()
       .then((version) => this.setState({sodium_version_string: version}))
       .catch((error) => this.setState({sodiumError: error}))
@@ -49,15 +49,21 @@ export default  class Example extends Component {
     // Public-key cryptography - authenticated encryption
     Sodium.crypto_box_keypair()
       .then(({pk,sk}) => this.setState({crypto_box_keypair:{pk,sk}}))
+  }
 
+  componentWillMount() {
+     this._testSodium()
   }
 
   render() {
     return (
-      <ScrollView style={styles.container}>
-        <Text style={styles.welcome}>
-          Salted React Native!
-        </Text>
+      <ScrollView style={{flex:1}}>
+      <View style={styles.container}>
+        <TouchableHighlight onPress={() => this._testSodium()}>
+          <Text style={styles.welcome}>
+            Salted React Native!
+          </Text>
+        </TouchableHighlight>
         <Text style={styles.instructions}>
           sodium_version_string: {this.state.sodium_version_string}
         </Text>
@@ -71,19 +77,22 @@ export default  class Example extends Component {
           randombytes_buf: {this.state.randombytes_buf}
         </Text>
         <Text style={styles.instructions}>
-          crypto_box_keypair: {"\n\tpk:" + this.state.crypto_box_keypair.pk + "\n\tsk:" + this.state.crypto_box_keypair.sk}
+          crypto_box_keypair: {"\n\t"}pk: {this.state.crypto_box_keypair.pk}{"\n\t"}sk: {this.state.crypto_box_keypair.sk}
         </Text>
+        </View>
       </ScrollView>
-    );
+    )
   }
+
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-//    justifyContent: 'center',
-//    alignItems: 'center',
+   //justifyContent: 'center',
+    //alignItems: 'center',
     backgroundColor: '#F5FCFF',
+    padding:5
   },
   welcome: {
     fontSize: 20,
@@ -95,4 +104,4 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginBottom: 5,
   },
-});
+})
