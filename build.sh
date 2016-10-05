@@ -24,7 +24,7 @@ cd $srcdir
 # --------------------------
 platform=`uname`
 if [[ "$platform" == 'Darwin' ]]; then
-  dist-build/ios.sh
+  IOS_VERSION_MIN=6.0 dist-build/ios.sh
 fi
 
 # --------------------------
@@ -57,4 +57,4 @@ fi
 # Cleanup
 # --------------------------
 rm -Rf $srcdir
-rm  $srcfile
+rm $srcfile
