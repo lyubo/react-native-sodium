@@ -18,6 +18,8 @@ import org.libsodium.jni.Sodium;
 
 public class RCTSodiumModule extends ReactContextBaseJavaModule {
 
+  static final String ERR_BAD_KEYSIZE = "BAD_KEYSIZE";
+  static final String ERR_BAD_AUTHENTICATOR = "BAD_AUTHENTICATOR";
 
   public RCTSodiumModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -81,6 +83,42 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
     Sodium.randombytes_stir();
   }
 
+
+  // ***************************************************************************
+  // * Secret-key cryptography - authentication
+  // ***************************************************************************
+  @ReactMethod
+  public void crypto_auth(String in, String k, final Promise p){
+    try {
+      byte[] out = new byte[Sodium.crypto_auth_BYTES];
+      byte[] inb = Base64.decode(in, Base64.NO_WRAP);
+      byte[] kb = Base64.decode(k, Base64.NO_WRAP);
+      if (kb.length != Sodium.crypto_auth_KEYBYTES) throw new  RuntimeException(ERR_BAD_KEYSIZE);
+
+      Sodium.crypto_auth(out, inb, inb.length, kb);
+      p.resolve(Base64.encodeToString(out,Base64.NO_WRAP));
+    }
+    catch (Throwable t) {
+      p.reject(t);
+    }
+  }
+
+  @ReactMethod
+  public void crypto_auth_verify(String h, String in, String k, final Promise p){
+    try {
+      byte[] inb = Base64.decode(in, Base64.NO_WRAP);
+      byte[] hb = Base64.decode(h, Base64.NO_WRAP);
+      byte[] kb = Base64.decode(k, Base64.NO_WRAP);
+      if (kb.length != Sodium.crypto_auth_KEYBYTES) throw new RuntimeException(ERR_BAD_KEYSIZE);
+      if (hb.length != Sodium.crypto_auth_BYTES) throw new RuntimeException(ERR_BAD_AUTHENTICATOR);
+
+      int result = Sodium.crypto_auth_verify(hb, inb, inb.length, kb);
+      p.resolve(result);
+    }
+    catch (Throwable t) {
+      p.reject(t);
+    }
+  }
 
   // ***************************************************************************
   // * Public-key cryptography - authenticated encryption

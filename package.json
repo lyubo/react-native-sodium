@@ -7,7 +7,7 @@
   "scripts": {
     "postinstall": "./build.sh"
   },
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "The Sodium crypto library for React Native.",
   "author": "Lyubomir Ivanov",
   "main": "index.js",

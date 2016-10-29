@@ -9,6 +9,20 @@ import {
 
 import Sodium from 'react-native-sodium'
 
+class TestResult extends Component {
+    render() {
+      const text = (this.props.result == null) ? "?" :(this.props.result ? "Pass":"Fail")
+      const style = {color:(this.props.result == null ? "black" : (this.props.result ? "green":"red"))}
+      return (
+        <View style={styles.testContainer}>
+          <Text style={styles.testLabel}>{this.props.name}:</Text>
+          <Text style={[styles.testResult,style]}>{text}</Text>
+        </View>
+      );
+    }
+
+  }
+
 export default  class Example extends Component {
 
   state: {
@@ -16,8 +30,9 @@ export default  class Example extends Component {
     randombytes_random: number,
     randombytes_uniform: number,
     randombytes_buf: string,
+    crypto_auth: number,
+    crypto_auth_verify: number,
     crypto_box_keypair: {pk:string, sk: string},
-    sodiumError: string
    }
 
   constructor(props) {
@@ -26,6 +41,33 @@ export default  class Example extends Component {
       sodium_version_string: "n/a",
       crypto_box_keypair:{},
       sodiumError:""}
+  }
+
+
+  _handleError(error) {
+    console.log(error)
+    this.setState({sodiumError: error})
+  }
+
+  _testAuth1() {
+    const k = "SmVmZQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    const c = "d2hhdCBkbyB5YSB3YW50IGZvciBub3RoaW5nPw=="
+    const ta = "Fkt6e/z4GeLjlfvnO1bgo4e9ZCIugx/WECcM1+olBVQ="
+
+    this.setState({crypto_auth:null,crypto_auth_verify:null})
+
+    Sodium.crypto_auth(c,k).then((a) => {
+      this.setState({crypto_auth:(a === ta)})
+      Sodium.crypto_auth_verify(ta,c,k)
+        .then((r) => this.setState({crypto_auth_verify:(r == 0)}))
+        .catch((error) => {
+          this.setState({crypto_auth_verify:false})
+          this._handleError(error)
+        })
+    }).catch((error) => {
+      this.setState({crypto_auth_verify:false})
+      this._handleError(error)
+    })
   }
 
   _testSodium() {
@@ -46,6 +88,9 @@ export default  class Example extends Component {
     Sodium.randombytes_close()
     Sodium.randombytes_stir()
 
+    // Secret key - authentication
+    this._testAuth1()
+
     // Public-key cryptography - authenticated encryption
     Sodium.crypto_box_keypair()
       .then(({pk,sk}) => this.setState({crypto_box_keypair:{pk,sk}}))
@@ -58,7 +103,6 @@ export default  class Example extends Component {
   render() {
     return (
       <ScrollView style={{flex:1}}>
-      <View style={styles.container}>
         <TouchableHighlight onPress={() => this._testSodium()}>
           <Text style={styles.welcome}>
             Salted React Native!
@@ -76,10 +120,11 @@ export default  class Example extends Component {
         <Text style={styles.instructions}>
           randombytes_buf: {this.state.randombytes_buf}
         </Text>
+        <TestResult name = "crypto_auth" result={this.state.crypto_auth}/>
+        <TestResult name = "crypto_auth_verify" result={this.state.crypto_auth_verify}/>
         <Text style={styles.instructions}>
           crypto_box_keypair: {"\n\t"}pk: {this.state.crypto_box_keypair.pk}{"\n\t"}sk: {this.state.crypto_box_keypair.sk}
         </Text>
-        </View>
       </ScrollView>
     )
   }
@@ -94,6 +139,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5FCFF',
     padding:5
   },
+
+  testContainer: {
+    flex: 1,
+    flexDirection:'row',
+    padding:5
+  },
+
+  testLabel: {
+    flex:4,
+    textAlign: 'left',
+    color: '#333333',
+  },
+
+  testResult: {
+    flex:1,
+    textAlign: 'center',
+  },
+
   welcome: {
     fontSize: 20,
     textAlign: 'center',

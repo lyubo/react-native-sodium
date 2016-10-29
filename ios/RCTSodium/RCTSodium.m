@@ -15,12 +15,20 @@
 
 static bool isInitialized;
 
+const NSString *ERR_BAD_KEYSIZE = @"BAD_KEYSIZE";
+const NSString *ERR_BAD_AUTHENTICATOR = @"BAD_AUTHENTICATOR";
+
 RCT_EXPORT_MODULE();
 
 + (void) initialize
 {
     [super initialize];
     isInitialized = sodium_init() != -1;
+}
+
+
+NSException* sodiumException(const NSString *message) {
+  return [NSException exceptionWithName:message reason:@"" userInfo:nil];
 }
 
 // *****************************************************************************
@@ -49,8 +57,7 @@ RCT_EXPORT_METHOD(randombytes_buf:(NSUInteger)size resolve:(RCTPromiseResolveBlo
 {
     unsigned char buf[(u_int32_t)size];
     randombytes_buf(buf,(u_int32_t)size);
-    NSString *buf64 = [[NSData dataWithBytesNoCopy:buf length:sizeof(buf) freeWhenDone:NO]  base64EncodedStringWithOptions:0];
-    resolve(buf64);
+    resolve([[NSData dataWithBytesNoCopy:buf length:sizeof(buf) freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
 }
 
 RCT_EXPORT_METHOD(randombytes_close)
@@ -64,6 +71,40 @@ RCT_EXPORT_METHOD(randombytes_stir)
 }
 
 
+// ***************************************************************************
+// * Secret-key cryptography - authentication
+// ***************************************************************************
+RCT_EXPORT_METHOD(crypto_auth:(NSString*)in k:(NSString*)k resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+  unsigned char out[crypto_auth_BYTES];
+
+  @try {
+    const NSData *din = [[NSData alloc] initWithBase64EncodedString:in options:0];
+    const NSData *dk = [[NSData alloc] initWithBase64EncodedString:k options:0];
+    if (dk.length != crypto_auth_KEYBYTES) @throw sodiumException(ERR_BAD_KEYSIZE);
+    crypto_auth(out, [din bytes], (unsigned long long) din.length, [dk bytes]);
+    resolve([[NSData dataWithBytesNoCopy:out length:sizeof(out) freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
+  }
+  @catch(NSException *e) {
+    reject(RCTErrorUnspecified,e.name,RCTErrorWithMessage(e.reason));
+  }
+}
+
+RCT_EXPORT_METHOD(crypto_auth_verify:(NSString*)h in:(NSString*)in k:(NSString*)k resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+  @try {
+    const NSData *dh = [[NSData alloc] initWithBase64EncodedString:h options:0];
+    const NSData *din = [[NSData alloc] initWithBase64EncodedString:in options:0];
+    const NSData *dk = [[NSData alloc] initWithBase64EncodedString:k options:0];
+    if (dk.length != crypto_auth_KEYBYTES) @throw sodiumException(ERR_BAD_KEYSIZE);
+    if (dh.length != crypto_auth_BYTES) @throw sodiumException(ERR_BAD_AUTHENTICATOR);
+    int result = crypto_auth_verify([dh bytes], [din bytes], (unsigned long long) din.length, [dk bytes]);
+    resolve(@(result));
+  }
+  @catch(NSException *e) {
+    reject(RCTErrorUnspecified,e.name,RCTErrorWithMessage(e.reason));
+  }
+}
 
 // *****************************************************************************
 // * Public-key cryptography - authenticated encryption

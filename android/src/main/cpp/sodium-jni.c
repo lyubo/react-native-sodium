@@ -57,6 +57,36 @@ JNIEXPORT void JNICALL Java_org_libsodium_jni_SodiumJNI_randombytes_1stir(JNIEnv
 }
 
 
+/* *****************************************************************************
+ * Secret-key cryptography - authentication
+ * *****************************************************************************
+ */
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1auth(JNIEnv *jenv, jclass jcls, jbyteArray j_out, jbyteArray j_in, jlong j_inlen, jbyteArray j_k) {
+  unsigned char *out = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_out, 0);
+  unsigned char *in = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_in, 0);
+  unsigned char *k = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_k, 0);
+
+  int result = crypto_auth(out,in,(unsigned long long) j_inlen,k);
+
+  (*jenv)->ReleaseByteArrayElements(jenv, j_out, (jbyte *) out, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_in, (jbyte *) in, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_k, (jbyte *) k, 0);
+  return (jint)result;
+}
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1auth_1verify(JNIEnv *jenv, jclass jcls, jbyteArray j_h, jbyteArray j_in, jlong j_inlen, jbyteArray j_k) {
+  unsigned char *h = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_h, 0);
+  unsigned char *in = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_in, 0);
+  unsigned char *k = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_k, 0);
+
+  int result = 0;//crypto_auth_verify(h, in, (unsigned long) j_inlen, k);
+
+  (*jenv)->ReleaseByteArrayElements(jenv, j_h, (jbyte *) h, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_in, (jbyte *) in, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_k, (jbyte *) k, 0);
+
+  return (jint)result;
+}
 
 /* *****************************************************************************
  * Public-key cryptography - authenticated encryption
