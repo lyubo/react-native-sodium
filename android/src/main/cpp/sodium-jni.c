@@ -79,7 +79,7 @@ JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1auth_1verify(JNI
   unsigned char *in = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_in, 0);
   unsigned char *k = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_k, 0);
 
-  int result = 0;//crypto_auth_verify(h, in, (unsigned long) j_inlen, k);
+  int result = crypto_auth_verify(h, in, (unsigned long long) j_inlen, k);
 
   (*jenv)->ReleaseByteArrayElements(jenv, j_h, (jbyte *) h, 0);
   (*jenv)->ReleaseByteArrayElements(jenv, j_in, (jbyte *) in, 0);
