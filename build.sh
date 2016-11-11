@@ -7,9 +7,9 @@ srcdir=`basename $srcfile .tar.gz`
 # --------------------------
 # Download and verify source
 # --------------------------
-[ -f $srcfile ] || curl https://download.libsodium.org/libsodium/releases/$srcfile > $srcfile
+[ -f $srcfile ] && rm -f $srcfile
+curl https://download.libsodium.org/libsodium/releases/$srcfile > $srcfile
 gpg --no-default-keyring --keyring `pwd`/trusted.gpg --verify $sigfile $srcfile || exit 1
-
 
 # --------------------------
 # Extract sources
@@ -18,26 +18,39 @@ gpg --no-default-keyring --keyring `pwd`/trusted.gpg --verify $sigfile $srcfile 
 tar -xzf $srcfile
 cd $srcdir
 
+targetPlatforms="$@"
+[ "$targetPlatforms" ] || targetPlatforms="arm mips x86 ios"
 
-# --------------------------
-# iOS build
-# --------------------------
-platform=`uname`
-if [[ "$platform" == 'Darwin' ]]; then
-  IOS_VERSION_MIN=6.0 dist-build/ios.sh
-fi
+for targetPlatform in $targetPlatforms
+do
+  # --------------------------
+  # iOS build
+  # --------------------------
+  platform=`uname`
+  if [ "$platform" == 'Darwin' ] && [ "$targetPlatform" == 'ios' ]; then
+    IOS_VERSION_MIN=6.0 dist-build/ios.sh
+  fi
 
-# --------------------------
-# Android build
-# --------------------------
-dist-build/android-arm.sh
-dist-build/android-armv7-a.sh
-dist-build/android-armv8-a.sh
-dist-build/android-build.sh
-dist-build/android-mips32.sh
-dist-build/android-mips64.sh
-dist-build/android-x86.sh
-dist-build/android-x86_64.sh
+  # --------------------------
+  # Android build
+  # --------------------------
+  case $targetPlatform in
+    "arm")
+      dist-build/android-arm.sh
+      dist-build/android-armv7-a.sh
+      dist-build/android-armv8-a.sh
+      ;;
+    "mips")
+      dist-build/android-mips32.sh
+      dist-build/android-mips64.sh
+      ;;
+    "x86")
+      dist-build/android-x86.sh
+      dist-build/android-x86_64.sh
+    ;;
+  esac
+
+done
 cd ..
 
 
@@ -47,8 +60,8 @@ cd ..
 mkdir -p libsodium
 rm -Rf libsodium/*
 
-mv $srcdir/libsodium-android-* libsodium/
-if [[ "$platform" == 'Darwin' ]]; then
+[ -e $srcdir/libsodium-android-* ] && mv $srcdir/libsodium-android-* libsodium/
+if [ "$platform" == 'Darwin' ] && [ -e $srcdir/libsodium-ios ]; then
   mv $srcdir/libsodium-ios libsodium/
 fi
 
@@ -56,5 +69,5 @@ fi
 # --------------------------
 # Cleanup
 # --------------------------
-rm -Rf $srcdir
-rm $srcfile
+[ -e $srcdir ] && rm -Rf $srcdir
+[ -e $srcfile ] && rm $srcfile
