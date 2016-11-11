@@ -5,7 +5,8 @@
     "url" : "https://github.com/lyubo/react-native-sodium.git"
   },
   "scripts": {
-    "postinstall": "./build.sh"
+    "postinstall": "tar -xzf precompiled.tgz",
+    "rebuild": "./build.sh"
   },
   "version": "0.3.0",
   "description": "The Sodium crypto library for React Native.",
