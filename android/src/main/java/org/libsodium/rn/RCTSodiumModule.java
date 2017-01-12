@@ -40,6 +40,9 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
   @Override
   public Map<String, Object> getConstants() {
      final Map<String, Object> constants = new HashMap<>();
+     constants.put("crypto_secretbox_KEYBYTES", Sodium.crypto_secretbox_keybytes());
+     constants.put("crypto_secretbox_NONCEBYTES", Sodium.crypto_secretbox_noncebytes());
+     constants.put("crypto_secretbox_MACBYTES", Sodium.crypto_secretbox_macbytes());
      constants.put("crypto_auth_KEYBYTES", Sodium.crypto_auth_keybytes());
      constants.put("crypto_auth_BYTES", Sodium.crypto_auth_bytes());
      constants.put("crypto_box_PUBLICKEYBYTES", Sodium.crypto_box_publickeybytes());
@@ -97,6 +100,59 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
     p.resolve(0);
   }
 
+
+  // ***************************************************************************
+  // * Secret-key cryptography - authenticated encryption
+  // ***************************************************************************
+  @ReactMethod
+  public void crypto_secretbox_easy(final String m, final String n, final String k, final Promise p) {
+    try {
+      byte[] mb = Base64.decode(m, Base64.NO_WRAP);
+      byte[] nb = Base64.decode(n, Base64.NO_WRAP);
+      byte[] kb = Base64.decode(k, Base64.NO_WRAP);
+      if (kb.length != Sodium.crypto_secretbox_keybytes())
+        p.reject(ESODIUM,ERR_BAD_KEY);
+      else if (nb.length != Sodium.crypto_secretbox_noncebytes())
+        p.reject(ESODIUM,ERR_BAD_NONCE);
+      else {
+        byte[] cb = new byte[mb.length + Sodium.crypto_secretbox_macbytes()];
+        int result = Sodium.crypto_secretbox_easy(cb, mb, mb.length, nb, kb);
+        if (result != 0)
+          p.reject(ESODIUM,ERR_FAILURE);
+        else
+          p.resolve(Base64.encodeToString(cb,Base64.NO_WRAP));
+      }
+    }
+    catch (Throwable t) {
+      p.reject(ESODIUM,ERR_FAILURE,t);
+    }
+  }
+
+  @ReactMethod
+  public void crypto_secretbox_open_easy(final String c, final String n, final String k, final Promise p) {
+    try {
+      byte[] cb = Base64.decode(c, Base64.NO_WRAP);
+      byte[] nb = Base64.decode(n, Base64.NO_WRAP);
+      byte[] kb = Base64.decode(k, Base64.NO_WRAP);
+      if (kb.length != Sodium.crypto_secretbox_keybytes())
+        p.reject(ESODIUM,ERR_BAD_KEY);
+      else if (nb.length != Sodium.crypto_box_noncebytes())
+        p.reject(ESODIUM,ERR_BAD_NONCE);
+      else if (cb.length <=  Sodium.crypto_box_macbytes())
+        p.reject(ESODIUM,ERR_BAD_MSG);
+      else {
+        byte[] mb = new byte[cb.length - Sodium.crypto_box_macbytes()];
+        int result = Sodium.crypto_secretbox_open_easy(mb, cb, cb.length, nb, kb);
+        if (result != 0)
+          p.reject(ESODIUM,ERR_FAILURE);
+        else
+          p.resolve(Base64.encodeToString(mb,Base64.NO_WRAP));
+      }
+    }
+    catch (Throwable t) {
+      p.reject(ESODIUM,ERR_FAILURE,t);
+    }
+  }
 
   // ***************************************************************************
   // * Secret-key cryptography - authentication

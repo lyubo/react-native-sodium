@@ -10,6 +10,12 @@ public class SodiumJNI {
   public final static native int randombytes_close();
   public final static native void randombytes_stir();
 
+  public final static native int crypto_secretbox_keybytes();
+  public final static native int crypto_secretbox_noncebytes();
+  public final static native int crypto_secretbox_macbytes();
+  public final static native int crypto_secretbox_easy(byte[] c, final byte[] m, final long mlen, final byte[] n, final byte[] k);
+  public final static native int crypto_secretbox_open_easy(byte[] m, final byte[] c, final long clen,  final byte[] n, final byte[] k);
+
   public final static native int crypto_auth_keybytes();
   public final static native int crypto_auth_bytes();
   public final static native int crypto_auth(byte[] out, final byte[] in, final long inlen,  final byte[] k);
