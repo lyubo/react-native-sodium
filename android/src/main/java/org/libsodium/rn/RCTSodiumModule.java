@@ -7,6 +7,7 @@ package org.libsodium.rn;
 import java.util.Map;
 import java.util.HashMap;
 import android.util.Base64;
+import android.util.Log;
 
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
@@ -25,6 +26,8 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
   static final String ERR_BAD_MAC = "BAD_MAC";
   static final String ERR_BAD_MSG = "BAD_MSG";
   static final String ERR_BAD_NONCE = "BAD_NONCE";
+  static final String ERR_BAD_SEED = "BAD_SEED";
+  static final String ERR_BAD_SIG = "BAD_SIG";
   static final String ERR_FAILURE = "FAILURE";
 
   public RCTSodiumModule(ReactApplicationContext reactContext) {
@@ -50,6 +53,10 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
      constants.put("crypto_box_NONCEBYTES", Sodium.crypto_box_noncebytes());
      constants.put("crypto_box_MACBYTES", Sodium.crypto_box_macbytes());
      constants.put("crypto_box_ZEROBYTES", Sodium.crypto_box_zerobytes());
+     constants.put("crypto_sign_PUBLICKEYBYTES", Sodium.crypto_sign_publickeybytes());
+     constants.put("crypto_sign_SECRETKEYBYTES", Sodium.crypto_sign_secretkeybytes());
+     constants.put("crypto_sign_SEEDBYTES", Sodium.crypto_sign_seedbytes());
+     constants.put("crypto_sign_BYTES", Sodium.crypto_sign_bytes());
      return constants;
   }
 
@@ -277,4 +284,167 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
     }
   }
 
+  @ReactMethod
+  public void crypto_box_beforenm(final String pk, final String sk, final Promise p) {
+    try {
+      byte[] pkb = Base64.decode(pk, Base64.NO_WRAP);
+      byte[] skb = Base64.decode(sk, Base64.NO_WRAP);
+      if (pkb.length != Sodium.crypto_box_publickeybytes())
+        p.reject(ESODIUM,ERR_BAD_KEY);
+      else if (skb.length != Sodium.crypto_box_secretkeybytes())
+        p.reject(ESODIUM,ERR_BAD_KEY);
+      else {
+        byte[] s = new byte[Sodium.crypto_box_secretkeybytes()];
+        int result = Sodium.crypto_box_beforenm(s, pkb, skb);
+        if (result != 0)
+          p.reject(ESODIUM,ERR_FAILURE);
+        else
+          p.resolve(Base64.encodeToString(s,Base64.NO_WRAP));
+      }
+    }
+    catch (Throwable t) {
+      p.reject(ESODIUM,ERR_FAILURE,t);
+    }
+  }
+
+  // ***************************************************************************
+  // * Public-key cryptography - signatures
+  // ***************************************************************************
+  @ReactMethod
+  public void crypto_sign_detached(final String msg, final String sk, final Promise p) {
+    try {
+      byte[] msgb = Base64.decode(msg, Base64.NO_WRAP);
+      byte[] skb  = Base64.decode(sk, Base64.NO_WRAP);
+      if (skb.length != Sodium.crypto_sign_secretkeybytes()){
+        p.reject(ESODIUM,ERR_BAD_KEY);
+      }
+      else {
+        byte[] sig = new byte[Sodium.crypto_sign_bytes()];
+        int result = Sodium.crypto_sign_detached(sig, msgb, msgb.length, skb);
+        if (result != 0)
+          p.reject(ESODIUM, ERR_FAILURE);
+        else {
+          p.resolve(Base64.encodeToString(sig, Base64.NO_WRAP));
+        }
+      }
+    }
+    catch(Throwable t) {
+      p.reject(ESODIUM, ERR_FAILURE, t);
+    }
+  }
+
+  @ReactMethod
+  public void crypto_sign_verify_detached(final String sig, final String msg, final String pk, final Promise p) {
+    try {
+      byte[] sigb = Base64.decode(sig, Base64.NO_WRAP);
+      byte[] msgb = Base64.decode(msg, Base64.NO_WRAP);
+      byte[] pkb  = Base64.decode(pk, Base64.NO_WRAP);
+      if (pkb.length != Sodium.crypto_sign_publickeybytes()){
+        p.reject(ESODIUM,ERR_BAD_KEY);
+      }
+      if (sigb.length != Sodium.crypto_sign_bytes()){
+        p.reject(ESODIUM,ERR_BAD_SIG);
+      }
+      else {
+        int result = Sodium.crypto_sign_verify_detached(sigb, msgb, msgb.length, pkb);
+        if (result != 0)
+          p.reject(ESODIUM, ERR_FAILURE);
+        else
+          p.resolve(true);
+      }
+    }
+    catch(Throwable t) {
+      p.reject(ESODIUM, ERR_FAILURE, t);
+    }
+  }
+
+  @ReactMethod
+  public void crypto_sign_seed_keypair(final String seed, final Promise p) {
+    try {
+      byte[] seedb = Base64.decode(seed, Base64.NO_WRAP);
+      byte[] pk = new byte[Sodium.crypto_sign_publickeybytes()];
+      byte[] sk = new byte[Sodium.crypto_sign_secretkeybytes()];
+
+      if (seedb.length != Sodium.crypto_sign_seedbytes()) {
+        p.reject(ESODIUM,ERR_BAD_SEED);
+      }
+      else {
+        int result = Sodium.crypto_sign_seed_keypair(pk, sk, seedb);
+        if (result != 0)
+          p.reject(ESODIUM, ERR_FAILURE);
+        else {
+          WritableNativeMap map = new WritableNativeMap();
+          map.putString("pk",Base64.encodeToString(pk,Base64.NO_WRAP));
+          map.putString("sk",Base64.encodeToString(sk,Base64.NO_WRAP));
+          p.resolve(map);
+        }
+      }
+    }
+    catch(Throwable t) {
+      p.reject(ESODIUM, ERR_FAILURE, t);
+    }
+  }
+
+  @ReactMethod
+  public void crypto_sign_ed25519_sk_to_seed(final String sk, final Promise p) {
+    try {
+      byte[] skb = Base64.decode(sk, Base64.NO_WRAP);
+      if(skb.length != Sodium.crypto_sign_secretkeybytes()){
+        p.reject(ESODIUM,ERR_BAD_KEY);
+      }
+      else {
+        byte[] seed = new byte[Sodium.crypto_box_secretkeybytes()];
+        int result = Sodium.crypto_sign_ed25519_sk_to_seed(seed, skb);
+        if (result != 0)
+          p.reject(ESODIUM, ERR_FAILURE);
+        else
+          p.resolve(Base64.encodeToString(seed, Base64.NO_WRAP));
+      }
+    }
+    catch(Throwable t) {
+      p.reject(ESODIUM, ERR_FAILURE, t);
+    }
+  }
+
+  @ReactMethod
+  public void crypto_sign_ed25519_pk_to_curve25519(final String pk, final Promise p) {
+    try {
+      byte[] pkb = Base64.decode(pk, Base64.NO_WRAP);
+      if(pkb.length != Sodium.crypto_sign_publickeybytes()){
+        p.reject(ESODIUM,ERR_BAD_KEY);
+      }
+      else {
+        byte[] curve_pk = new byte[Sodium.crypto_sign_publickeybytes()];
+        int result = Sodium.crypto_sign_ed25519_pk_to_curve25519(curve_pk, pkb);
+        if (result != 0)
+          p.reject(ESODIUM, ERR_FAILURE);
+        else
+          p.resolve(Base64.encodeToString(curve_pk, Base64.NO_WRAP));
+      }
+    }
+    catch(Throwable t) {
+      p.reject(ESODIUM, ERR_FAILURE, t);
+    }
+  }
+
+  @ReactMethod
+  public void crypto_sign_ed25519_sk_to_curve25519(final String sk, final Promise p) {
+    try {
+      byte[] skb = Base64.decode(sk, Base64.NO_WRAP);
+      if(skb.length != Sodium.crypto_sign_secretkeybytes()){
+        p.reject(ESODIUM,ERR_BAD_KEY);
+      }
+      else {
+        byte[] curve_sk = new byte[Sodium.crypto_box_secretkeybytes()];
+        int result = Sodium.crypto_sign_ed25519_sk_to_curve25519(curve_sk, skb);
+        if (result != 0)
+          p.reject(ESODIUM, ERR_FAILURE);
+        else
+          p.resolve(Base64.encodeToString(curve_sk, Base64.NO_WRAP));
+      }
+    }
+    catch(Throwable t) {
+      p.reject(ESODIUM, ERR_FAILURE, t);
+    }
+  }
 }
