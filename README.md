@@ -1,4 +1,4 @@
-# react-native-soduim
+# react-native-sodium
 
 Sodium library is build from source (you should not trust a binary build when dealing  with cryptography)
 Source code is downloaded and verified before compilation
