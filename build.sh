@@ -60,7 +60,11 @@ cd ..
 mkdir -p libsodium
 rm -Rf libsodium/*
 
-[ -e $srcdir/libsodium-android-* ] && mv $srcdir/libsodium-android-* libsodium/
+for dir in $srcdir/libsodium-android-*
+do
+  mv $dir libsodium/
+done
+
 if [ "$platform" == 'Darwin' ] && [ -e $srcdir/libsodium-ios ]; then
   mv $srcdir/libsodium-ios libsodium/
 fi
