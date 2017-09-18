@@ -201,6 +201,98 @@ JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1open_1easy(
   return (jint)result;
 }
 
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1beforenm(JNIEnv *jenv, jclass jcls, jbyteArray j_s, jbyteArray j_pk, jbyteArray j_sk) {
+  unsigned char *s = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_s, 0);
+  unsigned char *pk = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_pk, 0);
+  unsigned char *sk = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_sk, 0);
+  int result = crypto_box_beforenm(s, pk, sk);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_s, (jbyte *) s, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_pk, (jbyte *) pk, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_sk, (jbyte *) sk, 0);
+  return (jint)result;
+}
+
+/* *****************************************************************************
+ * Public-key cryptography - signatures
+ * *****************************************************************************
+ */
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1sign_1secretkeybytes(JNIEnv *jenv, jclass jcls) {
+ return  (jint)crypto_sign_SECRETKEYBYTES;
+}
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1sign_1publickeybytes(JNIEnv *jenv, jclass jcls) {
+ return  (jint)crypto_sign_PUBLICKEYBYTES;
+}
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1sign_1seedbytes(JNIEnv *jenv, jclass jcls) {
+ return  (jint)crypto_sign_SEEDBYTES;
+}
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1sign_1bytes(JNIEnv *jenv, jclass jcls) {
+ return  (jint)crypto_sign_BYTES;
+}
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1sign_1detached(JNIEnv *jenv, jclass jcls, jbyteArray j_sig, jbyteArray j_msg, jint j_msg_len, jbyteArray j_sk) {
+  unsigned char *sig = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_sig, 0);
+  unsigned char *msg = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_msg, 0);
+  unsigned char *sk = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_sk, 0);
+  int result = crypto_sign_detached(sig, NULL, msg, j_msg_len, sk);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_sig, (jbyte *) sig, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_msg, (jbyte *) msg, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_sk, (jbyte *) sk, 0);
+  return (jint)result;
+}
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1sign_1verify_1detached(JNIEnv *jenv, jclass jcls, jbyteArray j_sig, jbyteArray j_msg, jlong j_msg_len, jbyteArray j_pk) {
+  unsigned char *sig = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_sig, 0);
+  unsigned char *msg = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_msg, 0);
+  unsigned char *pk = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_pk, 0);
+  int result = crypto_sign_verify_detached(sig, msg, (unsigned long long)j_msg_len, pk);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_sig, (jbyte *) sig, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_msg, (jbyte *) msg, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_pk, (jbyte *) pk, 0);
+  return (jint)result;
+}
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1sign_1seed_1keypair(JNIEnv *jenv, jclass jcls, jbyteArray j_pk, jbyteArray j_sk, jbyteArray j_seed) {
+  unsigned char *seed = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_seed, 0);
+  unsigned char *sk = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_sk, 0);
+  unsigned char *pk = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_pk, 0);
+  int result = crypto_sign_seed_keypair(pk, sk, seed);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_seed, (jbyte *) seed, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_pk, (jbyte *) pk, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_sk, (jbyte *) sk, 0);
+  return (jint)result;
+}
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1sign_1ed25519_1sk_1to_1seed(JNIEnv *jenv, jclass jcls, jbyteArray j_seed, jbyteArray j_sk) {
+  unsigned char *seed = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_seed, 0);
+  unsigned char *sk = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_sk, 0);
+  int result = crypto_sign_ed25519_sk_to_seed(seed, sk);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_seed, (jbyte *) seed, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_sk, (jbyte *) sk, 0);
+  return (jint)result;
+}
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1sign_1ed25519_1pk_1to_1curve25519(JNIEnv *jenv, jclass jcls, jbyteArray j_curve, jbyteArray j_ed) {
+  unsigned char *curve = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_curve, 0);
+  unsigned char *ed = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_ed, 0);
+  int result = crypto_sign_ed25519_pk_to_curve25519(curve, ed);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_curve, (jbyte *) curve, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_ed, (jbyte *) ed, 0);
+  return (jint)result;
+}
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1sign_1ed25519_1sk_1to_1curve25519(JNIEnv *jenv, jclass jcls, jbyteArray j_curve, jbyteArray j_ed) {
+  unsigned char *curve = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_curve, 0);
+  unsigned char *ed = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_ed, 0);
+  int result = crypto_sign_ed25519_sk_to_curve25519(curve, ed);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_curve, (jbyte *) curve, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_ed, (jbyte *) ed, 0);
+  return (jint)result;
+}
+
 #ifdef __cplusplus
 }
 #endif

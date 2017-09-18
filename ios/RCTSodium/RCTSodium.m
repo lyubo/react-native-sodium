@@ -20,6 +20,8 @@ NSString * const ERR_BAD_KEY = @"BAD_KEY";
 NSString * const ERR_BAD_MAC = @"BAD_MAC";
 NSString * const ERR_BAD_MSG = @"BAD_MSG";
 NSString * const ERR_BAD_NONCE = @"BAD_NONCE";
+NSString * const ERR_BAD_SEED = @"BAD_SEED";
+NSString * const ERR_BAD_SIG = @"BAD_SIG";
 NSString * const ERR_FAILURE = @"FAILURE";
 
 RCT_EXPORT_MODULE();
@@ -45,7 +47,11 @@ RCT_EXPORT_MODULE();
     @"crypto_box_PUBLICKEYBYTES": @crypto_box_PUBLICKEYBYTES,
     @"crypto_box_SECRETKEYBYTES": @crypto_box_SECRETKEYBYTES,
     @"crypto_box_NONCEBYTES": @crypto_box_NONCEBYTES,
-    @"crypto_box_MACBYTES": @crypto_box_MACBYTES
+    @"crypto_box_MACBYTES": @crypto_box_MACBYTES,
+    @"crypto_sign_PUBLICKEYBYTES": @crypto_sign_PUBLICKEYBYTES,
+    @"crypto_sign_SECRETKEYBYTES": @crypto_sign_SECRETKEYBYTES,
+    @"crypto_sign_SEEDBYTES": @crypto_sign_SEEDBYTES,
+    @"crypto_sign_BYTES": @crypto_sign_BYTES
   };
 }
 
@@ -221,5 +227,108 @@ RCT_EXPORT_METHOD(crypto_box_open_easy:(NSString*)c n:(NSString*)n pk:(NSString*
   else
     resolve([[NSData dataWithBytesNoCopy:[dc bytes] length:dc.length - crypto_box_MACBYTES freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
 }
+
+RCT_EXPORT_METHOD(crypto_box_beforenm:(NSString*)pk sk:(NSString*)sk resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+  const NSData *dpk = [[NSData alloc] initWithBase64EncodedString:pk options:0];
+  const NSData *dsk = [[NSData alloc] initWithBase64EncodedString:sk options:0];
+
+  unsigned char *dshared = (unsigned char *) sodium_malloc(crypto_box_PUBLICKEYBYTES);
+  if (!dpk || !dsk) reject(ESODIUM,ERR_FAILURE,nil);
+  else if (dpk.length != crypto_box_PUBLICKEYBYTES || dsk.length != crypto_box_SECRETKEYBYTES) reject(ESODIUM,ERR_BAD_KEY,nil);
+  else if (crypto_box_beforenm(dshared, [dpk bytes], [dsk bytes]) != 0)
+    reject(ESODIUM,ERR_FAILURE,nil);
+  else
+    resolve([[NSData dataWithBytesNoCopy:dshared length:crypto_box_SECRETKEYBYTES freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
+}
+
+
+// *****************************************************************************
+// * Public-key cryptography - signatures
+// *****************************************************************************
+
+RCT_EXPORT_METHOD(crypto_sign_detached:(NSString*)msg sk:(NSString*)sk resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+  const NSData *dmsg = [[NSData alloc] initWithBase64EncodedString:msg options:0];
+  const NSData *dsk  = [[NSData alloc] initWithBase64EncodedString:sk options:0];
+  unsigned char *dsig = (unsigned char *) sodium_malloc(crypto_sign_BYTES);
+  if (!dsig || !dmsg || !dsk) reject(ESODIUM,ERR_FAILURE,nil);
+  else if (dsk.length != crypto_sign_SECRETKEYBYTES) reject(ESODIUM,ERR_BAD_KEY,nil);
+  else if (crypto_sign_detached(dsig, nil, [dmsg bytes], dmsg.length, [dsk bytes]) != 0)
+    reject(ESODIUM,ERR_FAILURE,nil);
+  else
+    resolve([[NSData dataWithBytesNoCopy:dsig length:crypto_sign_SECRETKEYBYTES freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
+  sodium_free(dsig);
+}
+
+RCT_EXPORT_METHOD(crypto_sign_verify_detached:(NSString*)sig msg:(NSString*)msg pk:(NSString*)pk resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+  const NSData *dmsg = [[NSData alloc] initWithBase64EncodedString:msg options:0];
+  const NSData *dpk  = [[NSData alloc] initWithBase64EncodedString:pk options:0];
+  const NSData *dsig = [[NSData alloc] initWithBase64EncodedString:sig options:0];
+  if (!dsig || !dmsg || !dpk) reject(ESODIUM,ERR_FAILURE,nil);
+  else if (dpk.length != crypto_sign_PUBLICKEYBYTES) reject(ESODIUM,ERR_BAD_KEY,nil);
+  else if (dsig.length != crypto_sign_BYTES) reject(ESODIUM,ERR_BAD_SIG,nil);
+  else if (crypto_sign_verify_detached([dsig bytes], [dmsg bytes], dmsg.length, [dpk bytes]) != 0)
+    reject(ESODIUM,ERR_FAILURE,nil);
+  else
+    resolve(@(TRUE));
+}
+
+RCT_EXPORT_METHOD(crypto_sign_seed_keypair:(NSString*)seed resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+  const NSData *dseed = [[NSData alloc] initWithBase64EncodedString:seed options:0];
+  unsigned char *sk = (unsigned char *) sodium_malloc(crypto_sign_SECRETKEYBYTES);
+  unsigned char *pk = (unsigned char *) sodium_malloc(crypto_sign_PUBLICKEYBYTES);
+  if (!dseed || !sk || !pk) reject(ESODIUM,ERR_FAILURE,nil);
+  else if (dseed.length != crypto_sign_SEEDBYTES) reject(ESODIUM,ERR_BAD_SEED,nil);
+  else if (crypto_sign_seed_keypair(pk, sk, [dseed bytes]) != 0)
+    reject(ESODIUM,ERR_FAILURE,nil);
+  else {
+    NSString *pk64 = [[NSData dataWithBytesNoCopy:pk length:crypto_sign_PUBLICKEYBYTES freeWhenDone:NO]  base64EncodedStringWithOptions:0];
+    NSString *sk64 = [[NSData dataWithBytesNoCopy:sk length:crypto_sign_SECRETKEYBYTES freeWhenDone:NO]  base64EncodedStringWithOptions:0];
+    resolve(@{@"sk": sk64, @"pk": pk64});
+  }
+}
+
+RCT_EXPORT_METHOD(crypto_sign_ed25519_sk_to_seed:(NSString*)sk resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+  const NSData *dsk = [[NSData alloc] initWithBase64EncodedString:sk options:0];
+  unsigned char *seed = (unsigned char *) sodium_malloc(crypto_sign_SEEDBYTES);
+  if (!seed || !dsk) reject(ESODIUM,ERR_FAILURE,nil);
+  else if (dsk.length != crypto_sign_SECRETKEYBYTES) reject(ESODIUM,ERR_BAD_KEY,nil);
+  else if (crypto_sign_ed25519_sk_to_seed(seed, [dsk bytes]) != 0)
+    reject(ESODIUM,ERR_FAILURE,nil);
+  else {
+    resolve([[NSData dataWithBytesNoCopy:seed length:crypto_sign_SEEDBYTES freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
+  }
+}
+
+RCT_EXPORT_METHOD(crypto_sign_ed25519_pk_to_curve25519:(NSString*)ed_pk resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+  const NSData *ded_pk = [[NSData alloc] initWithBase64EncodedString:ed_pk options:0];
+  unsigned char *curve_pk = (unsigned char *) sodium_malloc(crypto_sign_PUBLICKEYBYTES);
+  if (!ded_pk || !curve_pk) reject(ESODIUM,ERR_FAILURE,nil);
+  else if (ded_pk.length != crypto_sign_PUBLICKEYBYTES) reject(ESODIUM,ERR_BAD_KEY,nil);
+  else if (crypto_sign_ed25519_pk_to_curve25519(curve_pk, [ded_pk bytes]) != 0)
+    reject(ESODIUM,ERR_FAILURE,nil);
+  else {
+    resolve([[NSData dataWithBytesNoCopy:curve_pk length:crypto_sign_PUBLICKEYBYTES freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
+  }
+}
+
+RCT_EXPORT_METHOD(crypto_sign_ed25519_sk_to_curve25519:(NSString*)ed_sk resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+  const NSData *ded_sk = [[NSData alloc] initWithBase64EncodedString:ed_sk options:0];
+  unsigned char *curve_sk = (unsigned char *) sodium_malloc(crypto_box_SECRETKEYBYTES);
+  if (!ded_sk || !curve_sk) reject(ESODIUM,ERR_FAILURE,nil);
+  else if (ded_sk.length != crypto_sign_SECRETKEYBYTES) reject(ESODIUM,ERR_BAD_KEY,nil);
+  else if (crypto_sign_ed25519_sk_to_curve25519(curve_sk, [ded_sk bytes]) != 0)
+    reject(ESODIUM,ERR_FAILURE,nil);
+  else {
+    resolve([[NSData dataWithBytesNoCopy:curve_sk length:crypto_box_SECRETKEYBYTES freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
+  }
+}
+
 
 @end
