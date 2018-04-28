@@ -213,6 +213,28 @@ RCT_EXPORT_METHOD(crypto_box_easy:(NSString*)m n:(NSString*)n pk:(NSString*)pk s
   }
 }
 
+RCT_EXPORT_METHOD(crypto_box_easy_afternm:(NSString*)m n:(NSString*)n k:(NSString*)k resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+  const NSData *dm = [[NSData alloc] initWithBase64EncodedString:m options:0];
+  const NSData *dn = [[NSData alloc] initWithBase64EncodedString:n options:0];
+  const NSData *dk = [[NSData alloc] initWithBase64EncodedString:k options:0];
+  if (!dm || !dn || !dk) reject(ESODIUM,ERR_FAILURE,nil);
+  else if (dn.length != crypto_box_NONCEBYTES) reject(ESODIUM,ERR_BAD_NONCE,nil);
+  else {
+    unsigned long clen = crypto_box_MACBYTES + dm.length;
+    unsigned char *dc = (unsigned char *) sodium_malloc(clen);
+    if (dc == NULL) reject(ESODIUM,ERR_FAILURE,nil);
+    else {
+      int result = crypto_box_easy_afternm(dc, [dm bytes], dm.length, [dn bytes], [dk bytes]);
+      if (result != 0)
+        reject(ESODIUM,ERR_FAILURE,nil);
+      else
+        resolve([[NSData dataWithBytesNoCopy:dc length:clen freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
+      sodium_free(dc);
+    }
+  }
+}
+
 RCT_EXPORT_METHOD(crypto_box_open_easy:(NSString*)c n:(NSString*)n pk:(NSString*)pk sk:(NSString*)sk resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
   const NSData *dc = [[NSData alloc] initWithBase64EncodedString:c options:0];
@@ -223,6 +245,19 @@ RCT_EXPORT_METHOD(crypto_box_open_easy:(NSString*)c n:(NSString*)n pk:(NSString*
   else if (dpk.length != crypto_box_PUBLICKEYBYTES || dsk.length != crypto_box_SECRETKEYBYTES) reject(ESODIUM,ERR_BAD_KEY,nil);
   else if (dn.length != crypto_box_NONCEBYTES) reject(ESODIUM,ERR_BAD_NONCE,nil);
   else if (crypto_box_open_easy([dc bytes], [dc bytes], dc.length, [dn bytes], [dpk bytes], [dsk bytes]) != 0)
+    reject(ESODIUM,ERR_FAILURE,nil);
+  else
+    resolve([[NSData dataWithBytesNoCopy:[dc bytes] length:dc.length - crypto_box_MACBYTES freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
+}
+
+RCT_EXPORT_METHOD(crypto_box_open_easy_afternm:(NSString*)c n:(NSString*)n k:(NSString*)k resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+  const NSData *dc = [[NSData alloc] initWithBase64EncodedString:c options:0];
+  const NSData *dn = [[NSData alloc] initWithBase64EncodedString:n options:0];
+  const NSData *dk = [[NSData alloc] initWithBase64EncodedString:k options:0];
+  if (!dc || !dn || !dk) reject(ESODIUM,ERR_FAILURE,nil);
+  else if (dn.length != crypto_box_NONCEBYTES) reject(ESODIUM,ERR_BAD_NONCE,nil);
+  else if (crypto_box_open_easy_afternm([dc bytes], [dc bytes], dc.length, [dn bytes], [dk bytes]) != 0)
     reject(ESODIUM,ERR_FAILURE,nil);
   else
     resolve([[NSData dataWithBytesNoCopy:[dc bytes] length:dc.length - crypto_box_MACBYTES freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
