@@ -261,7 +261,9 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
       byte[] mb = Base64.decode(m, Base64.NO_WRAP);
       byte[] nb = Base64.decode(n, Base64.NO_WRAP);
       byte[] kb = Base64.decode(k, Base64.NO_WRAP);
-      if (nb.length != Sodium.crypto_box_noncebytes())
+      if (kb.length != Sodium.crypto_box_secretkeybytes())
+        p.reject(ESODIUM,ERR_BAD_KEY);
+      else if (nb.length != Sodium.crypto_box_noncebytes())
         p.reject(ESODIUM,ERR_BAD_NONCE);
       else {
         byte[] cb = new byte[mb.length + Sodium.crypto_box_macbytes()];
@@ -312,7 +314,9 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
       byte[] cb = Base64.decode(c, Base64.NO_WRAP);
       byte[] nb = Base64.decode(n, Base64.NO_WRAP);
       byte[] kb = Base64.decode(k, Base64.NO_WRAP);
-      if (nb.length != Sodium.crypto_box_noncebytes())
+      if (kb.length != Sodium.crypto_box_secretkeybytes())
+        p.reject(ESODIUM,ERR_BAD_KEY);
+      else if (nb.length != Sodium.crypto_box_noncebytes())
         p.reject(ESODIUM,ERR_BAD_NONCE);
       else if (cb.length < Sodium.crypto_box_macbytes())
         p.reject(ESODIUM,ERR_BAD_MSG);

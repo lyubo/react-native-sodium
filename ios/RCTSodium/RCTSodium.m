@@ -219,6 +219,7 @@ RCT_EXPORT_METHOD(crypto_box_easy_afternm:(NSString*)m n:(NSString*)n k:(NSStrin
   const NSData *dn = [[NSData alloc] initWithBase64EncodedString:n options:0];
   const NSData *dk = [[NSData alloc] initWithBase64EncodedString:k options:0];
   if (!dm || !dn || !dk) reject(ESODIUM,ERR_FAILURE,nil);
+  else if (dk.length != crypto_box_SECRETKEYBYTES) reject(ESODIUM,ERR_BAD_KEY,nil);
   else if (dn.length != crypto_box_NONCEBYTES) reject(ESODIUM,ERR_BAD_NONCE,nil);
   else {
     unsigned long clen = crypto_box_MACBYTES + dm.length;
@@ -256,6 +257,7 @@ RCT_EXPORT_METHOD(crypto_box_open_easy_afternm:(NSString*)c n:(NSString*)n k:(NS
   const NSData *dn = [[NSData alloc] initWithBase64EncodedString:n options:0];
   const NSData *dk = [[NSData alloc] initWithBase64EncodedString:k options:0];
   if (!dc || !dn || !dk) reject(ESODIUM,ERR_FAILURE,nil);
+  else if (dk.length != crypto_box_SECRETKEYBYTES) reject(ESODIUM,ERR_BAD_KEY,nil);
   else if (dn.length != crypto_box_NONCEBYTES) reject(ESODIUM,ERR_BAD_NONCE,nil);
   else if (crypto_box_open_easy_afternm([dc bytes], [dc bytes], dc.length, [dn bytes], [dk bytes]) != 0)
     reject(ESODIUM,ERR_FAILURE,nil);
