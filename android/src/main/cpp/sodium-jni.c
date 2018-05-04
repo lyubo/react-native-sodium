@@ -212,6 +212,32 @@ JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1beforenm(JN
   return (jint)result;
 }
 
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1easy_1afternm(JNIEnv *jenv, jclass jcls, jbyteArray j_c, jbyteArray j_m, jlong j_mlen, jbyteArray j_n, jbyteArray j_k) {
+  unsigned char *c = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_c, 0);
+  unsigned char *m = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_m, 0);
+  unsigned char *n = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_n, 0);
+  unsigned char *k = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_k, 0);
+  int result = crypto_box_easy_afternm(c, m, (unsigned long long) j_mlen, n, k);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_c, (jbyte *) c, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_m, (jbyte *) m, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_n, (jbyte *) n, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_k, (jbyte *) k, 0);
+  return (jint) result;
+}
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1open_1easy_1afternm(JNIEnv *jenv, jclass jcls, jbyteArray j_m, jbyteArray j_c, jlong j_clen, jbyteArray j_n, jbyteArray j_k) {
+  unsigned char *m = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_m, 0);
+  unsigned char *c = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_c, 0);
+  unsigned char *n = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_n, 0);
+  unsigned char *k = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_k, 0);
+  int result = crypto_box_open_easy_afternm(m, c, (unsigned long long) j_clen, n, k);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_m, (jbyte *) m, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_c, (jbyte *) c, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_n, (jbyte *) n, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_k, (jbyte *) k, 0);
+  return (jint) result;
+}
+
 /* *****************************************************************************
  * Public-key cryptography - signatures
  * *****************************************************************************
