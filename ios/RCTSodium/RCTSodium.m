@@ -48,11 +48,12 @@ RCT_EXPORT_MODULE();
     @"crypto_box_SECRETKEYBYTES": @crypto_box_SECRETKEYBYTES,
     @"crypto_box_NONCEBYTES": @crypto_box_NONCEBYTES,
     @"crypto_box_MACBYTES": @crypto_box_MACBYTES,
+    @"crypto_box_SEALBYTES": @crypto_box_SEALBYTES,
     @"crypto_sign_PUBLICKEYBYTES": @crypto_sign_PUBLICKEYBYTES,
     @"crypto_sign_SECRETKEYBYTES": @crypto_sign_SECRETKEYBYTES,
     @"crypto_sign_SEEDBYTES": @crypto_sign_SEEDBYTES,
     @"crypto_sign_BYTES": @crypto_sign_BYTES,
-    @"crypto_box_SEALBYTES": @crypto_box_SEALBYTES,
+
   };
 }
 
