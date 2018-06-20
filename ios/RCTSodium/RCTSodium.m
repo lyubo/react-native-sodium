@@ -416,7 +416,8 @@ RCT_EXPORT_METHOD(crypto_sign_ed25519_sk_to_pk:(NSString*)sk resolve: (RCTPromis
   const NSData *dsk = [[NSData alloc] initWithBase64EncodedString:sk options:0];
   unsigned char *pk = (unsigned char *) sodium_malloc(crypto_sign_PUBLICKEYBYTES);
   if (!dsk || !pk) reject(ESODIUM, ERR_FAILURE, nil);
-  else if (crypto_sign_ed25519_sk_to_pk([dsk bytes], pk) != 0)
+  if (dsk.length != crypto_sign_SECRETKEYBYTES) reject(ESODIUM,ERR_BAD_KEY,nil);
+  else if (crypto_sign_ed25519_sk_to_pk(pk, [dsk bytes]) != 0)
     reject(ESODIUM, ERR_FAILURE, nil);
   else {
     resolve([[NSData dataWithBytesNoCopy:pk length:crypto_sign_PUBLICKEYBYTES freeWhenDone:NO]  base64EncodedStringWithOptions:0]);

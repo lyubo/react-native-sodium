@@ -359,7 +359,7 @@ JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1sign_1ed25519_1s
 JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1sign_1ed25519_1sk_1to_1pl(JNIEnv *jenv, jclass jcls, jbyteArray j_sk, jbyteArray j_pk) {
   unsigned char *sk = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_sk, 0);
   unsigned char *pk = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_pk, 0);
-  int result = crypto_sign_ed25519_sk_to_pk(sk, pk);
+  int result = crypto_sign_ed25519_sk_to_pk(pk, sk);
   (*jenv)->ReleaseByteArrayElements(jenv, j_sk, (jbyte *) sk, 0);
   (*jenv)->ReleaseByteArrayElements(jenv, j_pk, (jbyte *) pk, 0);
   return (jint)result;
