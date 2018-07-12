@@ -53,7 +53,6 @@ RCT_EXPORT_MODULE();
     @"crypto_sign_SECRETKEYBYTES": @crypto_sign_SECRETKEYBYTES,
     @"crypto_sign_SEEDBYTES": @crypto_sign_SEEDBYTES,
     @"crypto_sign_BYTES": @crypto_sign_BYTES,
-
   };
 }
 

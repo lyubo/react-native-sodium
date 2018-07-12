@@ -573,7 +573,7 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
         p.reject(ESODIUM,ERR_BAD_KEY);
       }
       else {
-        byte[] pk = new byte[Sodium.crypto_box_publickeybytes()];
+        byte[] pk = new byte[Sodium.crypto_sign_publickeybytes()];
         int result = Sodium.crypto_sign_ed25519_sk_to_pk(skb, pk);
         if (result != 0) {
           p.reject(ESODIUM, ERR_FAILURE);
