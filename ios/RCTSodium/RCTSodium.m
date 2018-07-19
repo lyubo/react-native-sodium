@@ -239,17 +239,25 @@ RCT_EXPORT_METHOD(crypto_box_easy_afternm:(NSString*)m n:(NSString*)n k:(NSStrin
 
 RCT_EXPORT_METHOD(crypto_box_open_easy:(NSString*)c n:(NSString*)n pk:(NSString*)pk sk:(NSString*)sk resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
-  const NSData *dc = [[NSData alloc] initWithBase64EncodedString:c options:0];
-  const NSData *dn = [[NSData alloc] initWithBase64EncodedString:n options:0];
-  const NSData *dpk = [[NSData alloc] initWithBase64EncodedString:pk options:0];
-  const NSData *dsk = [[NSData alloc] initWithBase64EncodedString:sk options:0];
-  if (!dc || !dn || !dpk || !dsk) reject(ESODIUM,ERR_FAILURE,nil);
-  else if (dpk.length != crypto_box_PUBLICKEYBYTES || dsk.length != crypto_box_SECRETKEYBYTES) reject(ESODIUM,ERR_BAD_KEY,nil);
-  else if (dn.length != crypto_box_NONCEBYTES) reject(ESODIUM,ERR_BAD_NONCE,nil);
-  else if (crypto_box_open_easy([dc bytes], [dc bytes], dc.length, [dn bytes], [dpk bytes], [dsk bytes]) != 0)
-    reject(ESODIUM,ERR_FAILURE,nil);
-  else
-    resolve([[NSData dataWithBytesNoCopy:[dc bytes] length:dc.length - crypto_box_MACBYTES freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
+    const NSData *dc = [[NSData alloc] initWithBase64EncodedString:c options:NSDataBase64DecodingIgnoreUnknownCharacters];
+    const NSData *dn = [[NSData alloc] initWithBase64EncodedString:n options:0];
+    const NSData *dpk = [[NSData alloc] initWithBase64EncodedString:pk options:0];
+    const NSData *dsk = [[NSData alloc] initWithBase64EncodedString:sk options:0];
+    
+    if (!dc || !dn || !dpk || !dsk) reject(ESODIUM,dc,nil);
+    else {
+        unsigned long mlen = dc.length - crypto_box_MACBYTES;
+        unsigned char *dm = (unsigned char *) sodium_malloc(mlen);
+        if (dm == NULL) reject(ESODIUM,ERR_BAD_MSG,nil);
+        else {
+            int result = crypto_box_open_easy(dm, [dc bytes], dc.length, [dn bytes], [dpk bytes], [dsk bytes]);
+            if (result != 0)
+                reject(ESODIUM,ERR_FAILURE,nil);
+            else
+                resolve([[NSData dataWithBytesNoCopy:dm length:mlen freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
+            sodium_free(dm);
+        }
+    }
 }
 
 RCT_EXPORT_METHOD(crypto_box_open_easy_afternm:(NSString*)c n:(NSString*)n k:(NSString*)k resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
