@@ -243,7 +243,6 @@ RCT_EXPORT_METHOD(crypto_box_open_easy:(NSString*)c n:(NSString*)n pk:(NSString*
     const NSData *dn = [[NSData alloc] initWithBase64EncodedString:n options:0];
     const NSData *dpk = [[NSData alloc] initWithBase64EncodedString:pk options:0];
     const NSData *dsk = [[NSData alloc] initWithBase64EncodedString:sk options:0];
-    
     if (!dc || !dn || !dpk || !dsk) reject(ESODIUM,dc,nil);
     else {
         unsigned long mlen = dc.length - crypto_box_MACBYTES;
