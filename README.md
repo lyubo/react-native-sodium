@@ -1,26 +1,28 @@
 # react-native-sodium
 
-Sodium library is build from source (you should not trust a binary build when dealing  with cryptography)
-Source code is downloaded and verified before compilation
+Precompiled binaries of [libsodium](https://libsodium.org) will be linked by default.
+Optionally, you can choose to compile libsodium by yourself (run __npm&nbsp;run&nbsp;rebuild__ in package directory). Source code will be downloaded and verified before compilation.
 
-General prerequisites
-gpg (macports, homebrew)
+### Source compilation
+###### General prerequisites
+* gpg (macports, homebrew)
 
-macOS compilation prerequisites
-XCode
-libtool (macports, homebrew)
-autoconf (macports, homebrew)
-automake (macports, homebrew)
+###### MacOS prerequisites
+* libtool (macports, homebrew)
+* autoconf (macports, homebrew)
+* automake (macports, homebrew)
 
 
-Android prerequisites
-Android Studio
-SDK,
-NDK,
-CMake,
-LLDB
-Environment variables
+###### Android prerequisites
+* Android NDK
+* CMake
+* LLDB
 
-npm install react-native-sodium@https://github.com/lyubo/react-native-sodium.git
-react-native link react-native-sodium
-react-native run-ios or react-native run-android
+### Usage
+
+1. npm install react-native-sodium
+2. react-native link react-native-sodium
+3. react-native run-ios or react-native run-android
+
+### Help
+See [example application](https://www.npmjs.com/package/react-native-sodium-example).
