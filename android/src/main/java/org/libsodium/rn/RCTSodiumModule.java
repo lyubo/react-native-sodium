@@ -53,6 +53,7 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
      constants.put("crypto_box_NONCEBYTES", Sodium.crypto_box_noncebytes());
      constants.put("crypto_box_MACBYTES", Sodium.crypto_box_macbytes());
      constants.put("crypto_box_ZEROBYTES", Sodium.crypto_box_zerobytes());
+     constants.put("crypto_box_SEALBYTES", Sodium.crypto_box_sealbytes());
      constants.put("crypto_sign_PUBLICKEYBYTES", Sodium.crypto_sign_publickeybytes());
      constants.put("crypto_sign_SECRETKEYBYTES", Sodium.crypto_sign_secretkeybytes());
      constants.put("crypto_sign_SEEDBYTES", Sodium.crypto_sign_seedbytes());
@@ -256,6 +257,30 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  public void crypto_box_easy_afternm(final String m, final String n, final String k, final Promise p) {
+    try {
+      byte[] mb = Base64.decode(m, Base64.NO_WRAP);
+      byte[] nb = Base64.decode(n, Base64.NO_WRAP);
+      byte[] kb = Base64.decode(k, Base64.NO_WRAP);
+      if (kb.length != Sodium.crypto_box_secretkeybytes())
+        p.reject(ESODIUM,ERR_BAD_KEY);
+      else if (nb.length != Sodium.crypto_box_noncebytes())
+        p.reject(ESODIUM,ERR_BAD_NONCE);
+      else {
+        byte[] cb = new byte[mb.length + Sodium.crypto_box_macbytes()];
+        int result = Sodium.crypto_box_easy_afternm(cb, mb, mb.length, nb, kb);
+        if (result != 0)
+          p.reject(ESODIUM,ERR_FAILURE);
+        else
+          p.resolve(Base64.encodeToString(cb,Base64.NO_WRAP));
+      }
+    }
+    catch (Throwable t) {
+      p.reject(ESODIUM,ERR_FAILURE,t);
+    }
+  }
+
+  @ReactMethod
   public void crypto_box_open_easy(final String c, final String n, final String pk, final String sk, final Promise p) {
     try {
       byte[] cb = Base64.decode(c, Base64.NO_WRAP);
@@ -268,7 +293,7 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
         p.reject(ESODIUM,ERR_BAD_KEY);
       else if (nb.length != Sodium.crypto_box_noncebytes())
         p.reject(ESODIUM,ERR_BAD_NONCE);
-      else if (cb.length <  Sodium.crypto_box_macbytes())
+      else if (cb.length < Sodium.crypto_box_macbytes())
         p.reject(ESODIUM,ERR_BAD_MSG);
       else {
         byte[] mb = new byte[cb.length - Sodium.crypto_box_macbytes()];
@@ -280,6 +305,32 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
       }
     }
     catch (Throwable t) {
+      p.reject(ESODIUM,ERR_FAILURE,t);
+    }
+  }
+
+  @ReactMethod
+  public void crypto_box_open_easy_afternm(final String c, final String n, final String k, final Promise p) {
+    try {
+      byte[] cb = Base64.decode(c, Base64.NO_WRAP);
+      byte[] nb = Base64.decode(n, Base64.NO_WRAP);
+      byte[] kb = Base64.decode(k, Base64.NO_WRAP);
+      if (kb.length != Sodium.crypto_box_secretkeybytes())
+        p.reject(ESODIUM,ERR_BAD_KEY);
+      else if (nb.length != Sodium.crypto_box_noncebytes())
+        p.reject(ESODIUM,ERR_BAD_NONCE);
+      else if (cb.length < Sodium.crypto_box_macbytes())
+        p.reject(ESODIUM,ERR_BAD_MSG);
+      else {
+        byte[] mb = new byte[cb.length - Sodium.crypto_box_macbytes()];
+        int result = Sodium.crypto_box_open_easy_afternm(mb, cb, cb.length, nb, kb);
+        if (result != 0)
+          p.reject(ESODIUM,ERR_FAILURE);
+        else
+          p.resolve(Base64.encodeToString(mb,Base64.NO_WRAP));
+      }
+    }
+    catch(Throwable t) {
       p.reject(ESODIUM,ERR_FAILURE,t);
     }
   }
@@ -300,6 +351,51 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
           p.reject(ESODIUM,ERR_FAILURE);
         else
           p.resolve(Base64.encodeToString(s,Base64.NO_WRAP));
+      }
+    }
+    catch (Throwable t) {
+      p.reject(ESODIUM,ERR_FAILURE,t);
+    }
+  }
+
+  @ReactMethod
+  public void crypto_box_seal(final String m, final String pk, final Promise p) {
+    try {
+      byte[] pkb = Base64.decode(pk, Base64.NO_WRAP);
+      byte[] mb = Base64.decode(m, Base64.NO_WRAP);
+      if (pkb.length != Sodium.crypto_box_publickeybytes())
+        p.reject(ESODIUM,ERR_BAD_KEY);
+      else {
+        byte[] c = new byte[Sodium.crypto_box_sealbytes() + mb.length];
+        int result = Sodium.crypto_box_seal(c, mb, mb.length, pkb);
+        if (result != 0)
+          p.reject(ESODIUM,ERR_FAILURE);
+        else
+          p.resolve(Base64.encodeToString(c, Base64.NO_WRAP));
+      }
+    }
+    catch (Throwable t) {
+      p.reject(ESODIUM,ERR_FAILURE,t);
+    }
+  }
+
+  @ReactMethod
+  public void crypto_box_seal_open(final String c, final String pk, final String sk, final Promise p) {
+    try {
+      byte[] pkb = Base64.decode(pk, Base64.NO_WRAP);
+      byte[] skb = Base64.decode(sk, Base64.NO_WRAP);
+      byte[] cb = Base64.decode(c, Base64.NO_WRAP);
+      if (pkb.length != Sodium.crypto_box_publickeybytes())
+        p.reject(ESODIUM,ERR_BAD_KEY);
+      else if (skb.length != Sodium.crypto_box_secretkeybytes())
+        p.reject(ESODIUM,ERR_BAD_KEY);
+      else {
+        byte[] m = new byte[cb.length - Sodium.crypto_box_sealbytes()];
+        int result = Sodium.crypto_box_seal_open(m, cb, cb.length, pkb, skb);
+        if (result != 0)
+          p.reject(ESODIUM,ERR_FAILURE);
+        else
+          p.resolve(Base64.encodeToString(m, Base64.NO_WRAP));
       }
     }
     catch (Throwable t) {
@@ -351,6 +447,27 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
           p.reject(ESODIUM, ERR_FAILURE);
         else
           p.resolve(true);
+      }
+    }
+    catch(Throwable t) {
+      p.reject(ESODIUM, ERR_FAILURE, t);
+    }
+  }
+
+  @ReactMethod
+  public void crypto_sign_keypair(final Promise p) {
+    try {
+      byte[] pk = new byte[Sodium.crypto_sign_publickeybytes()];
+      byte[] sk = new byte[Sodium.crypto_sign_secretkeybytes()];
+
+      int result = Sodium.crypto_sign_keypair(pk, sk);
+      if (result != 0)
+        p.reject(ESODIUM, ERR_FAILURE);
+      else {
+        WritableNativeMap map = new WritableNativeMap();
+        map.putString("pk",Base64.encodeToString(pk,Base64.NO_WRAP));
+        map.putString("sk",Base64.encodeToString(sk,Base64.NO_WRAP));
+        p.resolve(map);
       }
     }
     catch(Throwable t) {
@@ -441,6 +558,29 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
           p.reject(ESODIUM, ERR_FAILURE);
         else
           p.resolve(Base64.encodeToString(curve_sk, Base64.NO_WRAP));
+      }
+    }
+    catch(Throwable t) {
+      p.reject(ESODIUM, ERR_FAILURE, t);
+    }
+  }
+
+  @ReactMethod
+  public void crypto_sign_ed25519_sk_to_pk(final String sk, final Promise p) {
+    try {
+      byte[] skb = Base64.decode(sk, Base64.NO_WRAP);
+      if(skb.length != Sodium.crypto_sign_secretkeybytes()){
+        p.reject(ESODIUM,ERR_BAD_KEY);
+      }
+      else {
+        byte[] pk = new byte[Sodium.crypto_sign_publickeybytes()];
+        int result = Sodium.crypto_sign_ed25519_sk_to_pk(skb, pk);
+        if (result != 0) {
+          p.reject(ESODIUM, ERR_FAILURE);
+        }
+        else {
+          p.resolve(Base64.encodeToString(pk, Base64.NO_WRAP));
+        }
       }
     }
     catch(Throwable t) {
