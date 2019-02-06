@@ -266,6 +266,15 @@ JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1seal_1open(
   return (jint) result;
 }
 
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1scalarmult_1base(JNIEnv *jenv, jclass jcls, jbyteArray j_pk, jbyteArray j_sk) {
+  unsigned char *pk = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_pk, 0);
+  unsigned char *sk = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_sk, 0);
+  int result = (int)crypto_scalarmult_base(pk, sk);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_pk, (jbyte *) pk, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_sk, (jbyte *) sk, 0);
+  return (jint)result;
+}
+
 /* *****************************************************************************
  * Public-key cryptography - signatures
  * *****************************************************************************

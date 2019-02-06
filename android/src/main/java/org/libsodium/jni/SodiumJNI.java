@@ -38,6 +38,8 @@ public class SodiumJNI {
   public final static native int crypto_box_seal(byte[] c, byte[] m, long mlen, byte[] pk);
   public final static native int crypto_box_seal_open(byte[] m, byte[] c, long clen, byte[] pk, byte[] sk);
 
+  public final static native int crypto_scalarmult_base(byte[] pk, final byte[] sk);
+
   public final static native int crypto_sign_publickeybytes();
   public final static native int crypto_sign_secretkeybytes();
   public final static native int crypto_sign_seedbytes();
