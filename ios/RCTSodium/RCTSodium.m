@@ -314,16 +314,16 @@ RCT_EXPORT_METHOD(crypto_box_seal_open:(NSString*)c pk:(NSString*)pk sk:(NSStrin
     resolve([[NSData dataWithBytesNoCopy:dm length:cipher_len freeWhenDone:NO] base64EncodedStringWithOptions:0]);
 }
 
-RCT_EXPORT_METHOD(crypto_scalarmult_base:(NSString*)sk resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(crypto_scalarmult_base:(NSString*)n resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
-  const NSData *dsk = [[NSData alloc] initWithBase64EncodedString:sk options:0];
-  unsigned char pk[crypto_box_PUBLICKEYBYTES];
-  if (!dsk) reject(ESODIUM,ERR_FAILURE, nil);
-  else if (dsk.length != crypto_box_SECRETKEYBYTES) reject(ESODIUM, ERR_BAD_KEY, nil);
-  else if (crypto_scalarmult_base(pk, [dsk bytes]) != 0)
+  const NSData *dn = [[NSData alloc] initWithBase64EncodedString:n options:0];
+  unsigned char q[crypto_box_PUBLICKEYBYTES];
+  if (!dn) reject(ESODIUM,ERR_FAILURE, nil);
+  else if (dn.length != crypto_box_SECRETKEYBYTES) reject(ESODIUM, ERR_BAD_KEY, nil);
+  else if (crypto_scalarmult_base(q, [dn bytes]) != 0)
     reject(ESODIUM,ERR_FAILURE, nil);
   else
-    resolve([[NSData dataWithBytesNoCopy:pk length:sizeof(pk) freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
+    resolve([[NSData dataWithBytesNoCopy:q length:sizeof(q) freeWhenDone:NO] base64EncodedStringWithOptions:0]);
 }
 
 // *****************************************************************************
