@@ -57,7 +57,17 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
      constants.put("crypto_sign_PUBLICKEYBYTES", Sodium.crypto_sign_publickeybytes());
      constants.put("crypto_sign_SECRETKEYBYTES", Sodium.crypto_sign_secretkeybytes());
      constants.put("crypto_sign_SEEDBYTES", Sodium.crypto_sign_seedbytes());
-     constants.put("crypto_sign_BYTES", Sodium.crypto_sign_bytes());
+     constants.put("crypto_pwhash_SALTBYTES", Sodium.crypto_pwhash_salt_bytes());
+     constants.put("crypto_pwhash_OPSLIMIT_MODERATE", Sodium.crypto_pwhash_opslimit_moderate());
+     constants.put("crypto_pwhash_OPSLIMIT_MIN", Sodium.crypto_pwhash_opslimit_min());
+     constants.put("crypto_pwhash_OPSLIMIT_MAX", Sodium.crypto_pwhash_opslimit_max());
+     constants.put("crypto_pwhash_MEMLIMIT_MODERATE", Sodium.crypto_pwhash_memlimit_moderate());
+     constants.put("crypto_pwhash_MEMLIMIT_MIN", Sodium.crypto_pwhash_memlimit_min());
+     constants.put("crypto_pwhash_MEMLIMIT_MAX", Sodium.crypto_pwhash_memlimit_max());
+     constants.put("crypto_pwhash_ALG_DEFAULT", Sodium.crypto_pwhash_algo_default());
+     constants.put("crypto_pwhash_ALG_ARGON2I13", Sodium.crypto_pwhash_algo_argon2i13());
+     constants.put("crypto_pwhash_ALG_ARGON2ID13", Sodium.crypto_pwhash_algo_argon2id13());
+
      return constants;
   }
 
@@ -351,6 +361,31 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
           p.reject(ESODIUM,ERR_FAILURE);
         else
           p.resolve(Base64.encodeToString(s,Base64.NO_WRAP));
+      }
+    }
+    catch (Throwable t) {
+      p.reject(ESODIUM,ERR_FAILURE,t);
+    }
+  }
+
+  @ReactMethod
+  public void crypto_pwhash(final Integer keylen, final String password, final String salt, final Integer opslimit, final Integer memlimit, final Integer algo , final Promise p) {
+    try {
+      byte[] saltb = Base64.decode(salt, Base64.NO_WRAP);
+      byte[] passwordb = Base64.decode(password, Base64.NO_WRAP);
+
+      if ((opslimit != Sodium.crypto_pwhash_opslimit_moderate() && opslimit != Sodium.crypto_pwhash_opslimit_min() && opslimit != Sodium.crypto_pwhash_opslimit_max())
+              || (memlimit != Sodium.crypto_pwhash_memlimit_moderate() && memlimit != Sodium.crypto_pwhash_memlimit_min() && memlimit != Sodium.crypto_pwhash_memlimit_max())
+              || (algo != Sodium.crypto_pwhash_algo_default() && algo != Sodium.crypto_pwhash_algo_argon2i13() && algo != Sodium.crypto_pwhash_algo_argon2id13())
+      ) {
+        p.reject(ESODIUM,ERR_FAILURE);
+      } else {
+        byte[] out = new byte[keylen];
+        int result = Sodium.crypto_pwhash(out, out.length, passwordb, passwordb.length, saltb, opslimit, memlimit, algo);
+        if (result != 0)
+          p.reject(ESODIUM,ERR_FAILURE);
+        else
+          p.resolve(Base64.encodeToString(out, Base64.NO_WRAP));
       }
     }
     catch (Throwable t) {
