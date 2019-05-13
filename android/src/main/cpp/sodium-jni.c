@@ -273,6 +273,8 @@ JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1pwhash(JNIEnv *j
 
   int result = crypto_pwhash(out, (unsigned long long) j_olong, password, (unsigned long long) j_plen, salt, (unsigned long long) j_opslimit, (unsigned long long) jmemlimit, (unsigned int) j_algo);
 
+  (*jenv)->ReleaseByteArrayElements(jenv, j_p, (jbyte *) password, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_salt, (jbyte *) salt, 0);
   (*jenv)->ReleaseByteArrayElements(jenv, j_out, (jbyte *) out, 0);
   return (jint) result;
 }
