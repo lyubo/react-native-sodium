@@ -57,6 +57,7 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
      constants.put("crypto_sign_PUBLICKEYBYTES", Sodium.crypto_sign_publickeybytes());
      constants.put("crypto_sign_SECRETKEYBYTES", Sodium.crypto_sign_secretkeybytes());
      constants.put("crypto_sign_SEEDBYTES", Sodium.crypto_sign_seedbytes());
+     constants.put("crypto_sign_BYTES", Sodium.crypto_sign_bytes());
      constants.put("crypto_pwhash_SALTBYTES", Sodium.crypto_pwhash_salt_bytes());
      constants.put("crypto_pwhash_OPSLIMIT_MODERATE", Sodium.crypto_pwhash_opslimit_moderate());
      constants.put("crypto_pwhash_OPSLIMIT_MIN", Sodium.crypto_pwhash_opslimit_min());
