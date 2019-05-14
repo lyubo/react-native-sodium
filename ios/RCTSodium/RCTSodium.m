@@ -53,7 +53,18 @@ RCT_EXPORT_MODULE();
     @"crypto_sign_SECRETKEYBYTES": @crypto_sign_SECRETKEYBYTES,
     @"crypto_sign_SEEDBYTES": @crypto_sign_SEEDBYTES,
     @"crypto_sign_BYTES": @crypto_sign_BYTES,
+    @"crypto_pwhash_SALTBYTES": @crypto_pwhash_SALTBYTES,
+    @"crypto_pwhash_OPSLIMIT_MODERATE":@crypto_pwhash_OPSLIMIT_MODERATE,
+    @"crypto_pwhash_OPSLIMIT_MIN":@crypto_pwhash_OPSLIMIT_MIN,
+    @"crypto_pwhash_OPSLIMIT_MAX":@crypto_pwhash_OPSLIMIT_MAX,
+    @"crypto_pwhash_MEMLIMIT_MODERATE":@crypto_pwhash_MEMLIMIT_MODERATE,
+    @"crypto_pwhash_MEMLIMIT_MIN":@crypto_pwhash_MEMLIMIT_MIN,
+    @"crypto_pwhash_MEMLIMIT_MAX":@crypto_pwhash_MEMLIMIT_MAX,
+    @"crypto_pwhash_ALG_DEFAULT":@crypto_pwhash_ALG_DEFAULT,
+    @"crypto_pwhash_ALG_ARGON2I13":@crypto_pwhash_ALG_ARGON2I13,
+    @"crypto_pwhash_ALG_ARGON2ID13":@crypto_pwhash_ALG_ARGON2ID13
   };
+    
 }
 
 + (BOOL)requiresMainQueueSetup
@@ -297,6 +308,24 @@ RCT_EXPORT_METHOD(crypto_box_seal:(NSString*)m pk:(NSString*)pk resolve:(RCTProm
     reject(ESODIUM,ERR_FAILURE,nil);
   else
     resolve([[NSData dataWithBytesNoCopy:dc length:cipher_len freeWhenDone:NO] base64EncodedStringWithOptions:0]);
+}
+
+RCT_EXPORT_METHOD(crypto_pwhash:(nonnull NSNumber*)keylen password:(NSString*)password salt:(NSString*)salt opslimit:(nonnull NSNumber*)opslimit memlimit:(nonnull NSNumber*)memlimit algo:(nonnull NSNumber*)algo resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+    const NSData *dpassword = [[NSData alloc] initWithBase64EncodedString:password options:0];
+    const NSData *dsalt = [[NSData alloc] initWithBase64EncodedString:salt options:0];
+    unsigned long long key_len = [keylen unsignedLongLongValue];
+    unsigned char *key = (unsigned char *) sodium_malloc(key_len);
+
+    if (crypto_pwhash(key, key_len,
+                      [dpassword bytes],
+                      password.length,
+                      [dsalt bytes],
+                      [opslimit unsignedLongLongValue],
+                      [memlimit unsignedLongValue], [algo intValue]) != 0)
+        reject(ESODIUM, ERR_FAILURE, nil);
+    else
+        resolve([[NSData dataWithBytesNoCopy:key length:key_len freeWhenDone:NO] base64EncodedStringWithOptions:0]);
 }
 
 RCT_EXPORT_METHOD(crypto_box_seal_open:(NSString*)c pk:(NSString*)pk sk:(NSString*)sk resolve: (RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)

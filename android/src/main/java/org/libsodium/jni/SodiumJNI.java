@@ -38,6 +38,18 @@ public class SodiumJNI {
   public final static native int crypto_box_seal(byte[] c, byte[] m, long mlen, byte[] pk);
   public final static native int crypto_box_seal_open(byte[] m, byte[] c, long clen, byte[] pk, byte[] sk);
 
+  public final static native int crypto_pwhash(byte[] out, final long olen, final byte[] password, final long plen, byte[] salt, long opslimit, long memlimit, int algo);
+  public final static native int crypto_pwhash_salt_bytes();
+  public final static native int crypto_pwhash_opslimit_moderate();
+  public final static native int crypto_pwhash_opslimit_min();
+  public final static native int crypto_pwhash_opslimit_max();
+  public final static native int crypto_pwhash_memlimit_moderate();
+  public final static native int crypto_pwhash_memlimit_min();
+  public final static native int crypto_pwhash_memlimit_max();
+  public final static native int crypto_pwhash_algo_default();
+  public final static native int crypto_pwhash_algo_argon2i13();
+  public final static native int crypto_pwhash_algo_argon2id13();
+
   public final static native int crypto_scalarmult_base(byte[] q, final byte[] n);
 
   public final static native int crypto_sign_publickeybytes();
