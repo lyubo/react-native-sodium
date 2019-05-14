@@ -374,20 +374,13 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
     try {
       byte[] saltb = Base64.decode(salt, Base64.NO_WRAP);
       byte[] passwordb = Base64.decode(password, Base64.NO_WRAP);
-
-      if ((opslimit != Sodium.crypto_pwhash_opslimit_moderate() && opslimit != Sodium.crypto_pwhash_opslimit_min() && opslimit != Sodium.crypto_pwhash_opslimit_max())
-              || (memlimit != Sodium.crypto_pwhash_memlimit_moderate() && memlimit != Sodium.crypto_pwhash_memlimit_min() && memlimit != Sodium.crypto_pwhash_memlimit_max())
-              || (algo != Sodium.crypto_pwhash_algo_default() && algo != Sodium.crypto_pwhash_algo_argon2i13() && algo != Sodium.crypto_pwhash_algo_argon2id13())
-      ) {
+      byte[] out = new byte[keylen];
+      
+      int result = Sodium.crypto_pwhash(out, out.length, passwordb, passwordb.length, saltb, opslimit, memlimit, algo);
+      if (result != 0)
         p.reject(ESODIUM,ERR_FAILURE);
-      } else {
-        byte[] out = new byte[keylen];
-        int result = Sodium.crypto_pwhash(out, out.length, passwordb, passwordb.length, saltb, opslimit, memlimit, algo);
-        if (result != 0)
-          p.reject(ESODIUM,ERR_FAILURE);
-        else
-          p.resolve(Base64.encodeToString(out, Base64.NO_WRAP));
-      }
+      else
+        p.resolve(Base64.encodeToString(out, Base64.NO_WRAP));
     }
     catch (Throwable t) {
       p.reject(ESODIUM,ERR_FAILURE,t);
