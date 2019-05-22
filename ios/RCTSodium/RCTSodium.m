@@ -319,7 +319,7 @@ RCT_EXPORT_METHOD(crypto_pwhash:(nonnull NSNumber*)keylen password:(NSString*)pa
 
     if (crypto_pwhash(key, key_len,
                       [dpassword bytes],
-                      password.length,
+                      [dpassword length],
                       [dsalt bytes],
                       [opslimit unsignedLongLongValue],
                       [memlimit unsignedLongValue], [algo intValue]) != 0)
