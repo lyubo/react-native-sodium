@@ -73,11 +73,10 @@ JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1secretbox_1macby
 return (jint) crypto_secretbox_MACBYTES;
 }
 
-JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1secretbox_1keygen(JNIEnv *jenv, jclass jcls, jbyteArray j_key) {
+JNIEXPORT void JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1secretbox_1keygen(JNIEnv *jenv, jclass jcls, jbyteArray j_key) {
   unsigned char *key = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_key, 0);
-  int result = (int)crypto_secretbox_keygen(key);
+  crypto_secretbox_keygen(key);
   (*jenv)->ReleaseByteArrayElements(jenv, j_key, (jbyte *) key, 0);
-  return (jint)result;
 }
 
 JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1secretbox_1easy(JNIEnv *jenv, jclass jcls, jbyteArray j_c, jbyteArray j_m, jlong j_mlen, jbyteArray j_n, jbyteArray j_k) {

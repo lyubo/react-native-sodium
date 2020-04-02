@@ -127,14 +127,11 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
   public void crypto_secretbox_keygen(final Promise p){
     try {
       byte[] key = new byte[Sodium.crypto_secretbox_keybytes()];
-
-      if (Sodium.crypto_secretbox_keygen(key) != 0)
-        p.reject(ESODIUM,ERR_FAILURE);
-      else {
-        WritableNativeMap result = new WritableNativeMap();
-        result.putString("key",Base64.encodeToString(key,Base64.NO_WRAP));
-        p.resolve(result);
-      }
+      Sodium.crypto_secretbox_keygen(key);
+      
+      WritableNativeMap result = new WritableNativeMap();
+      result.putString("key",Base64.encodeToString(key,Base64.NO_WRAP));
+      p.resolve(result);
     }
     catch (Throwable t) {
       p.reject(ESODIUM,ERR_FAILURE,t);
