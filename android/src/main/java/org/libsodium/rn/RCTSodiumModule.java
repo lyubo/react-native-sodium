@@ -124,6 +124,24 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
   // * Secret-key cryptography - authenticated encryption
   // ***************************************************************************
   @ReactMethod
+  public void crypto_secretbox_keygen(final Promise p){
+    try {
+      byte[] key = new byte[Sodium.crypto_secretbox_keybytes()];
+
+      if (Sodium.crypto_secretbox_keygen(key) != 0)
+        p.reject(ESODIUM,ERR_FAILURE);
+      else {
+        WritableNativeMap result = new WritableNativeMap();
+        result.putString("key",Base64.encodeToString(key,Base64.NO_WRAP));
+        p.resolve(result);
+      }
+    }
+    catch (Throwable t) {
+      p.reject(ESODIUM,ERR_FAILURE,t);
+    }
+  }
+
+  @ReactMethod
   public void crypto_secretbox_easy(final String m, final String n, final String k, final Promise p) {
     try {
       byte[] mb = Base64.decode(m, Base64.NO_WRAP);

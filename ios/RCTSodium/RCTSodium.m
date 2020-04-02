@@ -122,6 +122,17 @@ RCT_EXPORT_METHOD(randombytes_stir:(RCTPromiseResolveBlock)resolve reject:(__unu
 // *****************************************************************************
 // * Secret-key cryptography - authenticated encryption
 // *****************************************************************************
+RCT_EXPORT_METHOD(crypto_secretbox_keygen:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+  unsigned char key[crypto_secretbox_KEYBYTES];
+  if ( crypto_secretbox_keygen(key) == 0) {
+    NSString *key64 = [[NSData dataWithBytesNoCopy:key length:sizeof(key) freeWhenDone:NO]  base64EncodedStringWithOptions:0];
+    if (!key64) reject(ESODIUM,ERR_FAILURE,nil); else resolve(@(key));
+  }
+  else
+    reject(ESODIUM,ERR_FAILURE,nil);
+}
+
 RCT_EXPORT_METHOD(crypto_secretbox_easy:(NSString*)m n:(NSString*)n k:(NSString*)k resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
   const NSData *dm = [[NSData alloc] initWithBase64EncodedString:m options:0];
