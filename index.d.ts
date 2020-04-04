@@ -1,5 +1,5 @@
 declare module "react-native-sodium" {
-  export function sodium_version_string(): Promise<any>;
+  export function sodium_version_string(): Promise<string>;
 
   //
   // Generating random data
@@ -7,7 +7,7 @@ declare module "react-native-sodium" {
   /**
    * Returns an unpredictable value between 0 and 0xffffffff (included).
    */
-  export function randombytes_random(): Promise<any>;
+  export function randombytes_random(): Promise<number>;
 
   /**
    * Returns an unpredictable value between 0 and upper_bound (excluded).
@@ -15,26 +15,26 @@ declare module "react-native-sodium" {
    * the possible output values even when upper_bound is not a power of 2. Note that an
    * upper_bound < 2 leaves only a single element to be chosen, namely 0.
    */
-  export function randombytes_uniform(upper_bound: number): Promise<any>;
+  export function randombytes_uniform(upper_bound: number): Promise<number>;
 
   /**
    * Create a nonce
    */
-  export function randombytes_buf(size: number): Promise<any>;
+  export function randombytes_buf(size: number): Promise<string>;
 
   /**
    * This deallocates the global resources used by the pseudo-random number generator.
    * More specifically, when the /dev/urandom device is used, it closes the descriptor.
    * Explicitly calling this function is almost never required.
    */
-  export function randombytes_close(): Promise<any>;
+  export function randombytes_close(): Promise<number>;
 
   /**
    * Reseeds the pseudo-random number generator, if it supports this operation.
    * Calling this function is not required with the default generator, even after a fork() call,
    * unless the descriptor for /dev/urandom was closed using randombytes_close().
    */
-  export function randombytes_stir(): Promise<any>;
+  export function randombytes_stir(): Promise<number>;
 
   //
   // Secret-key cryptography - Authenticated encryption
@@ -42,23 +42,23 @@ declare module "react-native-sodium" {
   /**
    * Bytes of key on secret-key cryptography, authenticated encryption
    */
-  export const crypto_secretbox_KEYBYTES: any;
+  export const crypto_secretbox_KEYBYTES: number;
 
   /**
    * Bytes of nonce on secret-key cryptography, authenticated encryption
    */
-  export const crypto_secretbox_NONCEBYTES: any;
+  export const crypto_secretbox_NONCEBYTES: number;
 
   /**
    * Bytes of the authentication on secret-key cryptography, authenticated encryption
    */
-  export const crypto_secretbox_MACBYTES: any;
+  export const crypto_secretbox_MACBYTES: number;
 
   /**
    * Creates a random key. It is equivalent to calling randombytes_buf() but improves code
    * clarity and can prevent misuse by ensuring that the provided key length is always be correct.
    */
-  export function crypto_secretbox_keygen(): Promise<any>;
+  export function crypto_secretbox_keygen(): Promise<string>;
 
   /**
    * Encrypts a message, with a nonce and a key.
@@ -67,7 +67,7 @@ declare module "react-native-sodium" {
     message: string,
     nonce: string,
     key: string
-  ): Promise<any>;
+  ): Promise<string>;
 
   /**
    * Verifies and decrypts a ciphertext produced by crypto_secretbox_easy().
@@ -77,7 +77,7 @@ declare module "react-native-sodium" {
     cipher: string,
     nonce: string,
     key: string
-  ): Promise<any>;
+  ): Promise<string>;
 
   //
   // Secret-key cryptography - Authentication
@@ -85,26 +85,32 @@ declare module "react-native-sodium" {
   /**
    * Bytes of key on secret-key cryptography, authentication
    */
-  export const crypto_auth_KEYBYTES: any;
+  export const crypto_auth_KEYBYTES: number;
 
   /**
    * Bytes of the authentication on secret-key cryptography, authentication
    */
-  export const crypto_auth_BYTES: any;
+  export const crypto_auth_BYTES: number;
+
+  /**
+   * Creates a random key. It is equivalent to calling randombytes_buf() but improves code
+   * clarity and can prevent misuse by ensuring that the provided key length is always be correct.
+   */
+  export function crypto_auth_keygen(): Promise<string>;
 
   /**
    * Computes a tag for the message and the key.
    */
-  export function crypto_auth(inTag: string, key: string): Promise<any>;
+  export function crypto_auth(message: string, key: string): Promise<string>;
 
   /**
-   * Verifies that the tag stored at h is a valid tag for the message, and the key.
+   * Verifies that the tag is valid for the message and the key.
    */
   export function crypto_auth_verify(
-    h: string,
-    inTag: string,
+    tag: string,
+    message: string,
     key: string
-  ): Promise<any>;
+  ): Promise<number>;
 
   //
   // Public-key cryptography - Authenticated encryption
@@ -112,37 +118,37 @@ declare module "react-native-sodium" {
   /**
    * Bytes of public key on public-key cryptography, authenticated encryption
    */
-  export const crypto_box_PUBLICKEYBYTES: any;
+  export const crypto_box_PUBLICKEYBYTES: number;
 
   /**
    * Bytes of secret key on public-key cryptography, authenticated encryption
    */
-  export const crypto_box_SECRETKEYBYTES: any;
+  export const crypto_box_SECRETKEYBYTES: number;
 
   /**
    * Bytes of nonce on public-key cryptography, authenticated encryption
    */
-  export const crypto_box_NONCEBYTES: any;
+  export const crypto_box_NONCEBYTES: number;
 
   /**
    * Bytes of the authentication on public-key cryptography, authenticated encryption
    */
-  export const crypto_box_MACBYTES: any;
+  export const crypto_box_MACBYTES: number;
 
   /**
    *
    */
-  export const crypto_box_ZEROBYTES: any;
+  export const crypto_box_ZEROBYTES: number;
 
   /**
    *
    */
-  export const crypto_box_SEALBYTES: any;
+  export const crypto_box_SEALBYTES: number;
 
   /**
-   * Randomly generates a secret key and a corresponding public key.
+   * Randomly generates a secret key (sk) and a corresponding public key (pk).
    */
-  export function crypto_box_keypair(): Promise<any>;
+  export function crypto_box_keypair(): Promise<{ sk: string; pk: string }>;
 
   /**
    * Encrypts a message, with a recipient's public key, a sender's secret key and a nonce.
@@ -152,7 +158,7 @@ declare module "react-native-sodium" {
     nonce: string,
     publicKey: string,
     secretKey: string
-  ): Promise<any>;
+  ): Promise<string>;
 
   /**
    * Computes a shared secret key given a precalculated shared secret key.
@@ -161,7 +167,7 @@ declare module "react-native-sodium" {
     message: string,
     nonce: string,
     k: string
-  ): Promise<any>;
+  ): Promise<string>;
 
   /**
    * Verifies and decrypts a ciphertext produced by crypto_box_easy().
@@ -174,7 +180,7 @@ declare module "react-native-sodium" {
     nonce: string,
     publicKey: string,
     secretKey: string
-  ): Promise<any>;
+  ): Promise<string>;
 
   /**
    * Computes a shared secret key given a precalculated shared secret key.
@@ -183,7 +189,7 @@ declare module "react-native-sodium" {
     cipher: string,
     nonce: string,
     k: string
-  ): Promise<any>;
+  ): Promise<string>;
 
   /**
    * Computes a shared secret key given a public key pk and a secret key.
@@ -191,32 +197,33 @@ declare module "react-native-sodium" {
   export function crypto_box_beforenm(
     publicKey: string,
     secretKey: string
-  ): Promise<any>;
+  ): Promise<string>;
 
   /**
    * The key pair can be deterministically derived from a single key seed.
    */
-  export function crypto_scalarmult_base(nonce: string): Promise<any>;
+  export function crypto_scalarmult_base(secretKey: string): Promise<string>;
 
   //
   // Public-key cryptography - Sealed boxes
   //
   /**
-   * Encrypts a message for a recipient's public key.
+   * Encrypts a message for a recipient's public key. Only the recipient can decrypt
+   * these messages, using its private key and it cannot verify the identity of the sender.
    */
   export function crypto_box_seal(
     message: string,
     publicKey: string
-  ): Promise<any>;
+  ): Promise<string>;
 
   /**
-   * Decrypts the ciphertext using the key pair.
+   * Decrypts the ciphertext from crypto_box_seal, using the key pair.
    */
   export function crypto_box_seal_open(
     cipher: string,
     publicKey: string,
     secretKey: string
-  ): Promise<any>;
+  ): Promise<string>;
 
   //
   // Public-key cryptography - Public-key signatures
@@ -224,22 +231,22 @@ declare module "react-native-sodium" {
   /**
    * Bytes of public key on public-key cryptography, public-key signatures
    */
-  export const crypto_sign_PUBLICKEYBYTES: any;
+  export const crypto_sign_PUBLICKEYBYTES: number;
 
   /**
    * Bytes of secret key on public-key cryptography, public-key signatures
    */
-  export const crypto_sign_SECRETKEYBYTES: any;
+  export const crypto_sign_SECRETKEYBYTES: number;
 
   /**
    * Bytes of single key seed on public-key cryptography, public-key signatures
    */
-  export const crypto_sign_SEEDBYTES: any;
+  export const crypto_sign_SEEDBYTES: number;
 
   /**
    * Bytes of the authentication on public-key cryptography, public-key signatures
    */
-  export const crypto_sign_BYTES: any;
+  export const crypto_sign_BYTES: number;
 
   /**
    * Signs the message using the secret key.
@@ -247,7 +254,7 @@ declare module "react-native-sodium" {
   export function crypto_sign_detached(
     msg: string,
     secretKey: string
-  ): Promise<any>;
+  ): Promise<string>;
 
   /**
    * Verifies that sig is a valid signature for the message using the signer's public key.
@@ -256,43 +263,47 @@ declare module "react-native-sodium" {
     sig: string,
     msg: string,
     publicKey: string
-  ): Promise<any>;
+  ): Promise<boolean>;
 
   /**
    * Randomly generates a secret key and a corresponding public key.
    */
-  export function crypto_sign_keypair(): Promise<any>;
+  export function crypto_sign_keypair(): Promise<{ sk: string; pk: string }>;
 
   /**
    * Get key pair derived from a single key seed.
    */
-  export function crypto_sign_seed_keypair(seed: string): Promise<any>;
+  export function crypto_sign_seed_keypair(
+    seed: string
+  ): Promise<{ sk: string; pk: string }>;
 
   /**
    * Extracts the seed from the secret key.
    */
   export function crypto_sign_ed25519_sk_to_seed(
     secretKey: string
-  ): Promise<any>;
+  ): Promise<string>;
 
   /**
    * Converts an Ed25519 public key to an X25519 public key.
    */
   export function crypto_sign_ed25519_pk_to_curve25519(
     publicKey: string
-  ): Promise<any>;
+  ): Promise<string>;
 
   /**
    * Converts an Ed25519 secret key to an X25519 secret key
    */
   export function crypto_sign_ed25519_sk_to_curve25519(
     secretKey: string
-  ): Promise<any>;
+  ): Promise<string>;
 
   /**
    * Extracts the seed from the secret key sk.
    */
-  export function crypto_sign_ed25519_sk_to_pk(secretKey: string): Promise<any>;
+  export function crypto_sign_ed25519_sk_to_pk(
+    secretKey: string
+  ): Promise<string>;
 
   //
   // Password hashing
@@ -307,56 +318,56 @@ declare module "react-native-sodium" {
     opslimit: number,
     memlimit: number,
     algo: number
-  ): Promise<any>;
+  ): Promise<string>;
 
   /**
    * Bytes of salt on password hashing, the pwhash* API.
    */
-  export const crypto_pwhash_SALTBYTES: any;
+  export const crypto_pwhash_SALTBYTES: number;
 
   /**
    * Baseline for computations to perform on password hashing, the pwhash* API.
    */
-  export const crypto_pwhash_OPSLIMIT_MODERATE: any;
+  export const crypto_pwhash_OPSLIMIT_MODERATE: number;
 
   /**
    * Minimum numbers of CPU cycles to compute a key on password hashing, the pwhash* API.
    */
-  export const crypto_pwhash_OPSLIMIT_MIN: any;
+  export const crypto_pwhash_OPSLIMIT_MIN: number;
 
   /**
    * Maximum numbers of CPU cycles to compute a key on password hashing, the pwhash* API.
    */
-  export const crypto_pwhash_OPSLIMIT_MAX: any;
+  export const crypto_pwhash_OPSLIMIT_MAX: number;
 
   /**
    * Baseline for memory on password hashing, the pwhash* API.
    */
-  export const crypto_pwhash_MEMLIMIT_MODERATE: any;
+  export const crypto_pwhash_MEMLIMIT_MODERATE: number;
 
   /**
    * Minimum memory allowed to compute a key on password hashing, the pwhash* API.
    */
-  export const crypto_pwhash_MEMLIMIT_MIN: any;
+  export const crypto_pwhash_MEMLIMIT_MIN: number;
 
   /**
    * Maximum memory allowed to compute a key on password hashing, the pwhash* API.
    */
-  export const crypto_pwhash_MEMLIMIT_MAX: any;
+  export const crypto_pwhash_MEMLIMIT_MAX: number;
 
   /**
    * Tthe currently recommended algorithm, which can change from one version of libsodium to another.
    * On password hashing, the pwhash* API.
    */
-  export const crypto_pwhash_ALG_DEFAULT: any;
+  export const crypto_pwhash_ALG_DEFAULT: number;
 
   /**
    * Version 1.3 of the Argon2i algorithm.
    */
-  export const crypto_pwhash_ALG_ARGON2I13: any;
+  export const crypto_pwhash_ALG_ARGON2I13: number;
 
   /**
    * Version 1.3 of the Argon2id algorithm, available since libsodium 1.0.13.
    */
-  export const crypto_pwhash_ALG_ARGON2ID13: any;
+  export const crypto_pwhash_ALG_ARGON2ID13: number;
 }

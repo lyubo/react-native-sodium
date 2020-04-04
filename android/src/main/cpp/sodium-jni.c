@@ -117,6 +117,12 @@ JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1auth_1keybytes(J
   return (jint) crypto_auth_KEYBYTES;
 }
 
+JNIEXPORT void JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1auth_1keygen(JNIEnv *jenv, jclass jcls, jbyteArray j_key) {
+  unsigned char *key = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_key, 0);
+  crypto_auth_keygen(key);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_key, (jbyte *) key, 0);
+}
+
 JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1auth(JNIEnv *jenv, jclass jcls, jbyteArray j_out, jbyteArray j_in, jlong j_inlen, jbyteArray j_k) {
   unsigned char *out = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_out, 0);
   unsigned char *in = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_in, 0);

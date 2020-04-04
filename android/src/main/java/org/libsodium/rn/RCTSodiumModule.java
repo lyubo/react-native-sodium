@@ -190,6 +190,19 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
   // * Secret-key cryptography - authentication
   // ***************************************************************************
   @ReactMethod
+  public void crypto_auth_keygen(final Promise p){
+    try {
+      byte[] key = new byte[Sodium.crypto_auth_keybytes()];
+      Sodium.crypto_auth_keygen(key);
+      
+      p.resolve(Base64.encodeToString(key,Base64.NO_WRAP));
+    }
+    catch (Throwable t) {
+      p.reject(ESODIUM,ERR_FAILURE,t);
+    }
+  }
+
+  @ReactMethod
   public void crypto_auth(String in, String k, final Promise p){
     try {
       byte[] out = new byte[Sodium.crypto_auth_bytes()];

@@ -19,6 +19,7 @@ public class SodiumJNI {
 
   public final static native int crypto_auth_keybytes();
   public final static native int crypto_auth_bytes();
+  public final static native void crypto_auth_keygen(byte[] key);
   public final static native int crypto_auth(byte[] out, final byte[] in, final long inlen,  final byte[] k);
   public final static native int crypto_auth_verify(final byte[] h, final byte[] in, final long inlen, final byte[] k);
 
