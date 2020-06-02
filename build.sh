@@ -1,7 +1,7 @@
 #!/bin/bash
 
-sigfile=`ls -1 libsodium-*.tar.gz.sig`
-srcfile=`basename $sigfile .sig`
+sha512sumfile=`ls -1 libsodium-*.tar.gz.sha512sum`
+srcfile=`basename $sha512sumfile .sha512sum`
 srcdir=`basename $srcfile .tar.gz`
 
 # --------------------------
@@ -9,7 +9,7 @@ srcdir=`basename $srcfile .tar.gz`
 # --------------------------
 [ -f $srcfile ] && rm -f $srcfile
 curl https://download.libsodium.org/libsodium/releases/$srcfile > $srcfile
-gpg --no-default-keyring --keyring `pwd`/trusted.gpg --verify $sigfile $srcfile || exit 1
+shasum -a 512 -c "$sha512sumfile" --quiet || exit 1
 
 # --------------------------
 # Extract sources

@@ -4,9 +4,6 @@ Precompiled binaries of [libsodium](https://libsodium.org) will be linked by def
 Optionally, you can choose to compile libsodium by yourself (run __npm&nbsp;run&nbsp;rebuild__ in package directory). Source code will be downloaded and verified before compilation.
 
 ### Source compilation
-###### General prerequisites
-* gpg (macports, homebrew)
-
 ###### MacOS prerequisites
 * libtool (macports, homebrew)
 * autoconf (macports, homebrew)
