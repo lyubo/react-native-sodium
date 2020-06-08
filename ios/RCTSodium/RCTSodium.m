@@ -64,7 +64,7 @@ RCT_EXPORT_MODULE();
     @"crypto_pwhash_ALG_ARGON2I13":@crypto_pwhash_ALG_ARGON2I13,
     @"crypto_pwhash_ALG_ARGON2ID13":@crypto_pwhash_ALG_ARGON2ID13
   };
-    
+
 }
 
 + (BOOL)requiresMainQueueSetup
@@ -125,7 +125,7 @@ RCT_EXPORT_METHOD(randombytes_stir:(RCTPromiseResolveBlock)resolve reject:(__unu
 RCT_EXPORT_METHOD(crypto_secretbox_keygen:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
   unsigned char key[crypto_secretbox_KEYBYTES];
-  crypto_secretbox_keygen(key)
+  crypto_secretbox_keygen(key);
   resolve([[NSData dataWithBytesNoCopy:key length:sizeof(key) freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
 }
 
@@ -173,7 +173,7 @@ RCT_EXPORT_METHOD(crypto_secretbox_open_easy:(NSString*)c n:(NSString*)n k:(NSSt
 RCT_EXPORT_METHOD(crypto_auth_keygen:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
   unsigned char key[crypto_auth_KEYBYTES];
-  crypto_auth_keygen(key)
+  crypto_auth_keygen(key);
   resolve([[NSData dataWithBytesNoCopy:key length:sizeof(key) freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
 }
 
