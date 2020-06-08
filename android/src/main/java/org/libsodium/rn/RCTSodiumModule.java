@@ -124,6 +124,19 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
   // * Secret-key cryptography - authenticated encryption
   // ***************************************************************************
   @ReactMethod
+  public void crypto_secretbox_keygen(final Promise p){
+    try {
+      byte[] key = new byte[Sodium.crypto_secretbox_keybytes()];
+      Sodium.crypto_secretbox_keygen(key);
+      
+      p.resolve(Base64.encodeToString(key,Base64.NO_WRAP));
+    }
+    catch (Throwable t) {
+      p.reject(ESODIUM,ERR_FAILURE,t);
+    }
+  }
+
+  @ReactMethod
   public void crypto_secretbox_easy(final String m, final String n, final String k, final Promise p) {
     try {
       byte[] mb = Base64.decode(m, Base64.NO_WRAP);
@@ -155,12 +168,12 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
       byte[] kb = Base64.decode(k, Base64.NO_WRAP);
       if (kb.length != Sodium.crypto_secretbox_keybytes())
         p.reject(ESODIUM,ERR_BAD_KEY);
-      else if (nb.length != Sodium.crypto_box_noncebytes())
+      else if (nb.length != Sodium.crypto_secretbox_noncebytes())
         p.reject(ESODIUM,ERR_BAD_NONCE);
-      else if (cb.length <=  Sodium.crypto_box_macbytes())
+      else if (cb.length <=  Sodium.crypto_secretbox_macbytes())
         p.reject(ESODIUM,ERR_BAD_MSG);
       else {
-        byte[] mb = new byte[cb.length - Sodium.crypto_box_macbytes()];
+        byte[] mb = new byte[cb.length - Sodium.crypto_secretbox_macbytes()];
         int result = Sodium.crypto_secretbox_open_easy(mb, cb, cb.length, nb, kb);
         if (result != 0)
           p.reject(ESODIUM,ERR_FAILURE);
@@ -176,6 +189,19 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
   // ***************************************************************************
   // * Secret-key cryptography - authentication
   // ***************************************************************************
+  @ReactMethod
+  public void crypto_auth_keygen(final Promise p){
+    try {
+      byte[] key = new byte[Sodium.crypto_auth_keybytes()];
+      Sodium.crypto_auth_keygen(key);
+      
+      p.resolve(Base64.encodeToString(key,Base64.NO_WRAP));
+    }
+    catch (Throwable t) {
+      p.reject(ESODIUM,ERR_FAILURE,t);
+    }
+  }
+
   @ReactMethod
   public void crypto_auth(String in, String k, final Promise p){
     try {

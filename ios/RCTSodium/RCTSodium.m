@@ -122,6 +122,13 @@ RCT_EXPORT_METHOD(randombytes_stir:(RCTPromiseResolveBlock)resolve reject:(__unu
 // *****************************************************************************
 // * Secret-key cryptography - authenticated encryption
 // *****************************************************************************
+RCT_EXPORT_METHOD(crypto_secretbox_keygen:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+  unsigned char key[crypto_secretbox_KEYBYTES];
+  crypto_secretbox_keygen(key)
+  resolve([[NSData dataWithBytesNoCopy:key length:sizeof(key) freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
+}
+
 RCT_EXPORT_METHOD(crypto_secretbox_easy:(NSString*)m n:(NSString*)n k:(NSString*)k resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
   const NSData *dm = [[NSData alloc] initWithBase64EncodedString:m options:0];
@@ -163,6 +170,13 @@ RCT_EXPORT_METHOD(crypto_secretbox_open_easy:(NSString*)c n:(NSString*)n k:(NSSt
 // ***************************************************************************
 // * Secret-key cryptography - authentication
 // ***************************************************************************
+RCT_EXPORT_METHOD(crypto_auth_keygen:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+  unsigned char key[crypto_auth_KEYBYTES];
+  crypto_auth_keygen(key)
+  resolve([[NSData dataWithBytesNoCopy:key length:sizeof(key) freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
+}
+
 RCT_EXPORT_METHOD(crypto_auth:(NSString*)in k:(NSString*)k resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
   unsigned char out[crypto_auth_BYTES];
