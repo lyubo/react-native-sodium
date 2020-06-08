@@ -9,7 +9,7 @@ srcdir=`basename $srcfile .tar.gz`
 # --------------------------
 [ -f $srcfile ] && rm -f $srcfile
 curl -O https://download.libsodium.org/libsodium/releases/$srcfile
-shasum -a 512 -c "$sha512sumfile" --quiet || exit 1
+shasum -a 512 -c "$sha512sumfile" || exit 1
 
 # --------------------------
 # Extract sources
