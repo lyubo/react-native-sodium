@@ -25,9 +25,12 @@ public class SodiumJNI {
 
   public final static native int crypto_box_publickeybytes();
   public final static native int crypto_box_secretkeybytes();
+  public final static native int crypto_box_beforenmbytes();
+  public final static native int crypto_box_seedbytes();
   public final static native int crypto_box_noncebytes();
   public final static native int crypto_box_macbytes();
   public final static native int crypto_box_zerobytes();
+  public final static native int crypto_box_boxzerobytes();
   public final static native int crypto_box_sealbytes();
   public final static native int crypto_box_keypair(byte[] pk, byte[] sk);
   public final static native int crypto_box_easy(byte[] c, final byte[] m, final long mlen, final byte[] n, final byte[] pk, final byte[] sk);
