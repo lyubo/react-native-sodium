@@ -66,7 +66,7 @@ declare module "react-native-sodium" {
   export function crypto_secretbox_easy(
     message: string,
     nonce: string,
-    key: string
+    key: string,
   ): Promise<string>;
 
   /**
@@ -76,7 +76,7 @@ declare module "react-native-sodium" {
   export function crypto_secretbox_open_easy(
     cipher: string,
     nonce: string,
-    key: string
+    key: string,
   ): Promise<string>;
 
   //
@@ -109,7 +109,7 @@ declare module "react-native-sodium" {
   export function crypto_auth_verify(
     tag: string,
     message: string,
-    key: string
+    key: string,
   ): Promise<number>;
 
   //
@@ -126,6 +126,16 @@ declare module "react-native-sodium" {
   export const crypto_box_SECRETKEYBYTES: number;
 
   /**
+   * Bytes of shared key computes by an public key and a secret key on public-key cryptography, authenticated encryption
+   */
+  export const crypto_box_BEFORENMBYTES: number;
+
+  /**
+   * Bytes of seed
+   */
+  export const crypto_box_SEEDBYTES: number;
+
+  /**
    * Bytes of nonce on public-key cryptography, authenticated encryption
    */
   export const crypto_box_NONCEBYTES: number;
@@ -136,12 +146,17 @@ declare module "react-native-sodium" {
   export const crypto_box_MACBYTES: number;
 
   /**
-   *
+   * Bytes internally used to prepended zeros
    */
   export const crypto_box_ZEROBYTES: number;
 
   /**
-   *
+   * Bytes internally used to prepended zeros
+   */
+  export const crypto_box_BOXZEROBYTES: number;
+
+  /**
+   * Bytes used on messages on public-key cryptography, sealed boxes
    */
   export const crypto_box_SEALBYTES: number;
 
@@ -151,13 +166,20 @@ declare module "react-native-sodium" {
   export function crypto_box_keypair(): Promise<{ sk: string; pk: string }>;
 
   /**
+   * Deterministically derive from a single key seed, a secret key (sk) and a corresponding public key (pk).
+   */
+  export function crypto_box_seed_keypair(
+    seed: string,
+  ): Promise<{ sk: string; pk: string }>;
+
+  /**
    * Encrypts a message, with a recipient's public key, a sender's secret key and a nonce.
    */
   export function crypto_box_easy(
     message: string,
     nonce: string,
     publicKey: string,
-    secretKey: string
+    secretKey: string,
   ): Promise<string>;
 
   /**
@@ -166,7 +188,7 @@ declare module "react-native-sodium" {
   export function crypto_box_easy_afternm(
     message: string,
     nonce: string,
-    k: string
+    k: string,
   ): Promise<string>;
 
   /**
@@ -179,7 +201,7 @@ declare module "react-native-sodium" {
     cipher: string,
     nonce: string,
     publicKey: string,
-    secretKey: string
+    secretKey: string,
   ): Promise<string>;
 
   /**
@@ -188,7 +210,7 @@ declare module "react-native-sodium" {
   export function crypto_box_open_easy_afternm(
     cipher: string,
     nonce: string,
-    k: string
+    k: string,
   ): Promise<string>;
 
   /**
@@ -196,7 +218,7 @@ declare module "react-native-sodium" {
    */
   export function crypto_box_beforenm(
     publicKey: string,
-    secretKey: string
+    secretKey: string,
   ): Promise<string>;
 
   /**
@@ -213,7 +235,7 @@ declare module "react-native-sodium" {
    */
   export function crypto_box_seal(
     message: string,
-    publicKey: string
+    publicKey: string,
   ): Promise<string>;
 
   /**
@@ -222,7 +244,7 @@ declare module "react-native-sodium" {
   export function crypto_box_seal_open(
     cipher: string,
     publicKey: string,
-    secretKey: string
+    secretKey: string,
   ): Promise<string>;
 
   //
@@ -253,7 +275,7 @@ declare module "react-native-sodium" {
    */
   export function crypto_sign_detached(
     msg: string,
-    secretKey: string
+    secretKey: string,
   ): Promise<string>;
 
   /**
@@ -262,7 +284,7 @@ declare module "react-native-sodium" {
   export function crypto_sign_verify_detached(
     sig: string,
     msg: string,
-    publicKey: string
+    publicKey: string,
   ): Promise<boolean>;
 
   /**
@@ -274,35 +296,35 @@ declare module "react-native-sodium" {
    * Get key pair derived from a single key seed.
    */
   export function crypto_sign_seed_keypair(
-    seed: string
+    seed: string,
   ): Promise<{ sk: string; pk: string }>;
 
   /**
    * Extracts the seed from the secret key.
    */
   export function crypto_sign_ed25519_sk_to_seed(
-    secretKey: string
+    secretKey: string,
   ): Promise<string>;
 
   /**
    * Converts an Ed25519 public key to an X25519 public key.
    */
   export function crypto_sign_ed25519_pk_to_curve25519(
-    publicKey: string
+    publicKey: string,
   ): Promise<string>;
 
   /**
    * Converts an Ed25519 secret key to an X25519 secret key
    */
   export function crypto_sign_ed25519_sk_to_curve25519(
-    secretKey: string
+    secretKey: string,
   ): Promise<string>;
 
   /**
    * Extracts the seed from the secret key sk.
    */
   export function crypto_sign_ed25519_sk_to_pk(
-    secretKey: string
+    secretKey: string,
   ): Promise<string>;
 
   //
@@ -317,7 +339,7 @@ declare module "react-native-sodium" {
     salt: string,
     opslimit: number,
     memlimit: number,
-    algo: number
+    algo: number,
   ): Promise<string>;
 
   /**
@@ -356,7 +378,7 @@ declare module "react-native-sodium" {
   export const crypto_pwhash_MEMLIMIT_MAX: number;
 
   /**
-   * Tthe currently recommended algorithm, which can change from one version of libsodium to another.
+   * The currently recommended algorithm, which can change from one version of libsodium to another.
    * On password hashing, the pwhash* API.
    */
   export const crypto_pwhash_ALG_DEFAULT: number;
@@ -370,4 +392,24 @@ declare module "react-native-sodium" {
    * Version 1.3 of the Argon2id algorithm, available since libsodium 1.0.13.
    */
   export const crypto_pwhash_ALG_ARGON2ID13: number;
+
+  /**
+   * Max bytes of out key on password hashing, the pwhash* API.
+   */
+  export const crypto_pwhash_BYTES_MAX: number;
+
+  /**
+   * Min bytes of out key on password hashing, the pwhash* API.
+   */
+  export const crypto_pwhash_BYTES_MIN: number;
+
+  /**
+   * Max bytes of password on password hashing, the pwhash* API.
+   */
+  export const crypto_pwhash_PASSWD_MAX: number;
+
+  /**
+   * Min bytes of password on password hashing, the pwhash* API.
+   */
+  export const crypto_pwhash_PASSWD_MIN: number;
 }

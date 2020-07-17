@@ -199,6 +199,16 @@ JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1keypair(JNI
   return (jint)result;
 }
 
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1seed_1keypair(JNIEnv *jenv, jclass jcls, jbyteArray j_pk, jbyteArray j_sk, jbyteArray j_seed) {
+  unsigned char *pk = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_pk, 0);
+  unsigned char *sk = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_sk, 0);
+  unsigned char *seed = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_seed, 0);
+  int result = (int)crypto_box_seed_keypair(pk, sk, seed);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_pk, (jbyte *) pk, 0);
+  (*jenv)->ReleaseByteArrayElements(jenv, j_sk, (jbyte *) sk, 0);
+  return (jint)result;
+}
+
 JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1easy(JNIEnv *jenv, jclass jcls, jbyteArray j_c, jbyteArray j_m, jlong j_mlen, jbyteArray j_n, jbyteArray j_pk, jbyteArray j_sk) {
   unsigned char *c = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_c, 0);
   unsigned char *m = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_m, 0);
@@ -345,6 +355,22 @@ JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1pwhash_1algo_1ar
 
 JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1pwhash_1algo_1argon2id13 (JNIEnv *jenv, jclass jcls) {
   return (jint) crypto_pwhash_ALG_ARGON2ID13;
+}
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1pwhash_1bytes_1max(JNIEnv *jenv, jclass jcls) {
+  return (jint) crypto_pwhash_BYTES_MAX;
+}
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1pwhash_1bytes_1min(JNIEnv *jenv, jclass jcls) {
+  return (jint) crypto_pwhash_BYTES_MIN;
+}
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1pwhash_1passwd_1max(JNIEnv *jenv, jclass jcls) {
+  return (jint) crypto_pwhash_PASSWD_MAX;
+}
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1pwhash_1passwd_1min(JNIEnv *jenv, jclass jcls) {
+  return (jint) crypto_pwhash_PASSWD_MIN;
 }
 
 JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1scalarmult_1base(JNIEnv *jenv, jclass jcls, jbyteArray j_q, jbyteArray j_n) {

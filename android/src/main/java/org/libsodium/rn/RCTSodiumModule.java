@@ -71,6 +71,10 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
      constants.put("crypto_pwhash_ALG_DEFAULT", Sodium.crypto_pwhash_algo_default());
      constants.put("crypto_pwhash_ALG_ARGON2I13", Sodium.crypto_pwhash_algo_argon2i13());
      constants.put("crypto_pwhash_ALG_ARGON2ID13", Sodium.crypto_pwhash_algo_argon2id13());
+     constants.put("crypto_pwhash_BYTES_MAX", Sodium.crypto_pwhash_bytes_max());
+     constants.put("crypto_pwhash_BYTES_MIN", Sodium.crypto_pwhash_bytes_min());
+     constants.put("crypto_pwhash_PASSWD_MAX", Sodium.crypto_pwhash_passwd_max());
+     constants.put("crypto_pwhash_PASSWD_MIN", Sodium.crypto_pwhash_passwd_min());
 
      return constants;
   }
@@ -254,6 +258,28 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
       byte[] sk = new byte[Sodium.crypto_box_secretkeybytes()];
 
       if (Sodium.crypto_box_keypair(pk, sk) != 0)
+        p.reject(ESODIUM,ERR_FAILURE);
+      else {
+        WritableNativeMap result = new WritableNativeMap();
+        result.putString("pk",Base64.encodeToString(pk,Base64.NO_WRAP));
+        result.putString("sk",Base64.encodeToString(sk,Base64.NO_WRAP));
+        p.resolve(result);
+      }
+    }
+    catch (Throwable t) {
+      p.reject(ESODIUM,ERR_FAILURE,t);
+    }
+  }
+
+  @ReactMethod
+  public void crypto_box_seed_keypair(final String seed, final Promise p){
+    try {
+      byte[] pk = new byte[Sodium.crypto_box_publickeybytes()];
+      byte[] sk = new byte[Sodium.crypto_box_secretkeybytes()];
+      byte[] seedb = Base64.decode(seed, Base64.NO_WRAP);
+      if (seedb.length != Sodium.crypto_box_seedbytes())
+        p.reject(ESODIUM,ERR_BAD_SEED);
+      else if (Sodium.crypto_box_seed_keypair(pk, sk, seedb) != 0)
         p.reject(ESODIUM,ERR_FAILURE);
       else {
         WritableNativeMap result = new WritableNativeMap();
