@@ -46,8 +46,12 @@ RCT_EXPORT_MODULE();
     @"crypto_auth_BYTES": @crypto_auth_BYTES,
     @"crypto_box_PUBLICKEYBYTES": @crypto_box_PUBLICKEYBYTES,
     @"crypto_box_SECRETKEYBYTES": @crypto_box_SECRETKEYBYTES,
+    @"crypto_box_BEFORENMBYTES": @crypto_box_BEFORENMBYTES,
+    @"crypto_box_SEEDBYTES": @crypto_box_SEEDBYTES,
     @"crypto_box_NONCEBYTES": @crypto_box_NONCEBYTES,
     @"crypto_box_MACBYTES": @crypto_box_MACBYTES,
+    @"crypto_box_ZEROBYTES": @crypto_box_ZEROBYTES,
+    @"crypto_box_BOXZEROBYTES": @crypto_box_BOXZEROBYTES,
     @"crypto_box_SEALBYTES": @crypto_box_SEALBYTES,
     @"crypto_sign_PUBLICKEYBYTES": @crypto_sign_PUBLICKEYBYTES,
     @"crypto_sign_SECRETKEYBYTES": @crypto_sign_SECRETKEYBYTES,
@@ -64,7 +68,7 @@ RCT_EXPORT_MODULE();
     @"crypto_pwhash_ALG_ARGON2I13":@crypto_pwhash_ALG_ARGON2I13,
     @"crypto_pwhash_ALG_ARGON2ID13":@crypto_pwhash_ALG_ARGON2ID13
   };
-    
+
 }
 
 + (BOOL)requiresMainQueueSetup
@@ -125,7 +129,7 @@ RCT_EXPORT_METHOD(randombytes_stir:(RCTPromiseResolveBlock)resolve reject:(__unu
 RCT_EXPORT_METHOD(crypto_secretbox_keygen:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
   unsigned char key[crypto_secretbox_KEYBYTES];
-  crypto_secretbox_keygen(key)
+  crypto_secretbox_keygen(key);
   resolve([[NSData dataWithBytesNoCopy:key length:sizeof(key) freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
 }
 
@@ -173,7 +177,7 @@ RCT_EXPORT_METHOD(crypto_secretbox_open_easy:(NSString*)c n:(NSString*)n k:(NSSt
 RCT_EXPORT_METHOD(crypto_auth_keygen:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
   unsigned char key[crypto_auth_KEYBYTES];
-  crypto_auth_keygen(key)
+  crypto_auth_keygen(key);
   resolve([[NSData dataWithBytesNoCopy:key length:sizeof(key) freeWhenDone:NO]  base64EncodedStringWithOptions:0]);
 }
 

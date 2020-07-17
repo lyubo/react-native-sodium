@@ -162,6 +162,14 @@ JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1secretkeyby
  return  (jint)crypto_box_SECRETKEYBYTES;
 }
 
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1beforenmbytes(JNIEnv *jenv, jclass jcls) {
+ return (jint) crypto_box_BEFORENMBYTES;
+}
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1seedbytes(JNIEnv *jenv, jclass jcls) {
+ return (jint) crypto_box_SEEDBYTES;
+}
+
 JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1noncebytes(JNIEnv *jenv, jclass jcls) {
  return  (jint)crypto_box_NONCEBYTES;
 }
@@ -172,6 +180,10 @@ JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1macbytes(JN
 
 JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1zerobytes(JNIEnv *jenv, jclass jcls) {
  return (jint) crypto_box_ZEROBYTES;
+}
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1boxzerobytes(JNIEnv *jenv, jclass jcls) {
+ return (jint) crypto_box_BOXZEROBYTES;
 }
 
 JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1sealbytes(JNIEnv *jenv, jclass jcls) {
@@ -278,6 +290,10 @@ JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1box_1seal_1open(
   return (jint) result;
 }
 
+/* *****************************************************************************
+ * Password hashing - The pwhash* API
+ * *****************************************************************************
+ */
 JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1pwhash(JNIEnv *jenv, jclass jcls, jbyteArray j_out, jlong j_olong, jbyteArray j_p, jlong j_plen, jbyteArray j_salt, jlong j_opslimit, jlong jmemlimit, jint j_algo) {
   const char *password = (const char *) (*jenv)->GetByteArrayElements(jenv, j_p, 0);
   unsigned char *salt = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_salt, 0);

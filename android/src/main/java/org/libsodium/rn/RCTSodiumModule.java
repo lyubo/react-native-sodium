@@ -50,9 +50,12 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
      constants.put("crypto_auth_BYTES", Sodium.crypto_auth_bytes());
      constants.put("crypto_box_PUBLICKEYBYTES", Sodium.crypto_box_publickeybytes());
      constants.put("crypto_box_SECRETKEYBYTES", Sodium.crypto_box_secretkeybytes());
+     constants.put("crypto_box_BEFORENMBYTES", Sodium.crypto_box_beforenmbytes());
+     constants.put("crypto_box_SEEDBYTES", Sodium.crypto_box_seedbytes());
      constants.put("crypto_box_NONCEBYTES", Sodium.crypto_box_noncebytes());
      constants.put("crypto_box_MACBYTES", Sodium.crypto_box_macbytes());
      constants.put("crypto_box_ZEROBYTES", Sodium.crypto_box_zerobytes());
+     constants.put("crypto_box_BOXZEROBYTES", Sodium.crypto_box_boxzerobytes());
      constants.put("crypto_box_SEALBYTES", Sodium.crypto_box_sealbytes());
      constants.put("crypto_sign_PUBLICKEYBYTES", Sodium.crypto_sign_publickeybytes());
      constants.put("crypto_sign_SECRETKEYBYTES", Sodium.crypto_sign_secretkeybytes());
@@ -128,7 +131,6 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
     try {
       byte[] key = new byte[Sodium.crypto_secretbox_keybytes()];
       Sodium.crypto_secretbox_keygen(key);
-      
       p.resolve(Base64.encodeToString(key,Base64.NO_WRAP));
     }
     catch (Throwable t) {
@@ -194,7 +196,6 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
     try {
       byte[] key = new byte[Sodium.crypto_auth_keybytes()];
       Sodium.crypto_auth_keygen(key);
-      
       p.resolve(Base64.encodeToString(key,Base64.NO_WRAP));
     }
     catch (Throwable t) {
@@ -401,7 +402,7 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
       byte[] saltb = Base64.decode(salt, Base64.NO_WRAP);
       byte[] passwordb = Base64.decode(password, Base64.NO_WRAP);
       byte[] out = new byte[keylen];
-      
+
       int result = Sodium.crypto_pwhash(out, out.length, passwordb, passwordb.length, saltb, opslimit, memlimit, algo);
       if (result != 0)
         p.reject(ESODIUM,ERR_FAILURE);
