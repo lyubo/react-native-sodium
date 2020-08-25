@@ -203,6 +203,10 @@ declare module "react-native-sodium" {
    * The key pair can be deterministically derived from a single key seed.
    */
   export function crypto_scalarmult_base(secretKey: string): Promise<string>;
+  export function crypto_scalarmult(
+    publicKey: string,
+    secretKey: string
+  ): Promise<string>;
 
   //
   // Public-key cryptography - Sealed boxes
