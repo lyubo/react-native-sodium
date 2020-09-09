@@ -728,7 +728,7 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
     }
   }
 
-  private byte[] base64ToBin(String cipher, final int variant) {
+    private byte[] base64ToBin(String cipher, final int variant) {
     try {
       byte[] c = cipher.getBytes(StandardCharsets.UTF_8);
 
@@ -775,7 +775,7 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
         return null;
 
       else {
-        int blen = c.length;
+        int blen = c.length / 2;
         byte[] decoded = new byte[blen];
         int[] decoded_len = new int[1];
         int result = Sodium.sodium_hex2bin(decoded, blen, c, c.length, null, decoded_len, null);
