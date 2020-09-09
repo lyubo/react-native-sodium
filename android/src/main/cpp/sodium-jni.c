@@ -499,11 +499,16 @@ Java_org_libsodium_jni_SodiumJNI_sodium_1base642bin(JNIEnv *jenv, jclass clazz, 
                                                     jbyteArray j_ignore, jintArray j_bin_len,
                                                     jbyteArray j_b64_end, jint j_variant) {
     unsigned char *bin = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_bin, 0);
+    jint *len = (*jenv)->GetIntArrayElements(jenv, j_bin_len, 0);
     unsigned char *b64 = as_unsigned_char_array(jenv, j_b64);
     unsigned char *ignore = as_unsigned_char_array(jenv, j_ignore);
+    unsigned int len_res = 0;
 
-    int result = sodium_base642bin(bin, j_bin_maxlen, b64, j_b64_len, ignore, j_bin_len, j_b64_end, j_variant);
+    int result = sodium_base642bin(bin, j_bin_maxlen, b64, j_b64_len, ignore,
+                                   &len_res, j_b64_end, j_variant);
     (*jenv)->ReleaseByteArrayElements(jenv, j_bin, (jbyte *) bin, 0);
+    len[0] = len_res;
+    (*jenv)->ReleaseIntArrayElements(jenv, j_bin_len, len, 0);
     return (jint)result;
 }
 
@@ -524,11 +529,15 @@ Java_org_libsodium_jni_SodiumJNI_sodium_1hex2bin(JNIEnv *jenv, jclass clazz, jby
                                                  jbyteArray j_ignore, jintArray j_bin_len,
                                                  jbyteArray j_hex_end) {
     unsigned char *bin = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_bin, 0);
+    jint *len = (*jenv)->GetIntArrayElements(jenv, j_bin_len, 0);
     unsigned char *hex = as_unsigned_char_array(jenv, j_hex);
     unsigned char *ignore = as_unsigned_char_array(jenv, j_ignore);
+    unsigned int len_res = 0;
 
-    int result = sodium_hex2bin(bin, j_bin_maxlen, hex, j_hex_len, ignore,j_bin_len, j_hex_end);
+    int result = sodium_hex2bin(bin, j_bin_maxlen, hex, j_hex_len, ignore, &len_res, j_hex_end);
     (*jenv)->ReleaseByteArrayElements(jenv, j_bin, (jbyte *) bin, 0);
+    len[0] = len_res;
+    (*jenv)->ReleaseIntArrayElements(jenv, j_bin_len, len, 0);
     return (jint)result;
 }
 

@@ -743,7 +743,7 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
         if (result != 0)
           return null;
         else
-          return decoded;
+          return Arrays.copyOfRange(decoded, 0, decoded_len[0]);
       }
     }
     catch (Throwable t) {
@@ -782,7 +782,7 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
         if (result != 0)
           return null;
         else
-          return decoded;
+          return Arrays.copyOfRange(decoded, 0, decoded_len[0]);
       }
     } catch (Throwable t) {
       return null;

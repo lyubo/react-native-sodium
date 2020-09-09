@@ -76,8 +76,8 @@ public class SodiumJNI {
   public final static native int base64_variant_VARIANT_URLSAFE_NO_PADDING();
 
   public final static native char sodium_bin2base64(byte[] b64, final int b64_maxlen, final byte[] bin, final int bin_len, final int variant);
-  public final static native int sodium_base642bin(final byte[] bin, int bin_maxlen, final byte[] b64, final int b64_len, final byte[] ignore, final int[] bin_len, final byte[] b64_end, final int variant);
+  public final static native int sodium_base642bin(final byte[] bin, int bin_maxlen, final byte[] b64, final int b64_len, final byte[] ignore, int[] bin_len, final byte[] b64_end, final int variant);
   public final static native char sodium_bin2hex(byte[] hex, int hex_maxlen, byte[] bin, final int bin_len);
-  public final static native int sodium_hex2bin(byte[] bin, final int bin_maxlen, final byte[] hex, final int hex_len, final byte[] ignore, final int[] bin_len, final byte[] hex_end);
+  public final static native int sodium_hex2bin(byte[] bin, final int bin_maxlen, final byte[] hex, final int hex_len, final byte[] ignore, int[] bin_len, final byte[] hex_end);
   public final static native int sodium_base64_encoded_len(final int bin_len, final int variant);
 }
