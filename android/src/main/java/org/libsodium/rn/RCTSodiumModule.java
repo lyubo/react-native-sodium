@@ -665,4 +665,127 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
       p.reject(ESODIUM, ERR_FAILURE, t);
     }
   }
+
+  // ***************************************************************************
+  // * Utils
+  // ***************************************************************************
+
+  @ReactMethod
+  public void to_base64(final String message, final int variant, final Promise p) {
+    byte[] m = message.getBytes(StandardCharsets.UTF_8);
+    String result = this.binToBase64(m, variant);
+    if (result == null) {
+      p.reject(ESODIUM,ERR_FAILURE);
+    } else {
+      p.resolve(result);
+    }
+  }
+
+  @ReactMethod
+  public void from_base64(final String cipher, final int variant, final Promise p) {
+    byte[] result = this.base64ToBin(cipher, variant);
+    if (result == null) {
+      p.reject(ESODIUM,ERR_FAILURE);
+    } else {
+      p.resolve(new String(result, StandardCharsets.UTF_8));
+    }
+  }
+
+  @ReactMethod
+  public void to_hex(final String message, final Promise p) {
+    byte[] m = message.getBytes(StandardCharsets.UTF_8);
+    String result = this.binToHex(m);
+    if (result == null) {
+      p.reject(ESODIUM,ERR_FAILURE);
+    } else {
+      p.resolve(result);
+    }
+  }
+
+  @ReactMethod
+  public void from_hex(final String cipher, final Promise p) {
+    byte[] result = this.hexToBin(cipher);
+    if (result == null) {
+      p.reject(ESODIUM,ERR_FAILURE);
+    } else {
+      p.resolve(new String(result, StandardCharsets.UTF_8));
+    }
+  }
+
+  private String binToBase64(final byte[] data, final int variant) {
+    try {
+      if (data.length <= 0 || variant == 0)
+        return null;
+      else {
+        int encoded_len = Sodium.sodium_base64_encoded_len(data.length, variant);
+        byte[] encoded = new byte[encoded_len];
+        Sodium.sodium_bin2base64(encoded, encoded_len, data, data.length, variant);
+        return new String(encoded, StandardCharsets.UTF_8);
+      }
+    }
+    catch (Throwable t) {
+      return null;
+    }
+  }
+
+  private byte[] base64ToBin(String cipher, final int variant) {
+    try {
+      byte[] c = cipher.getBytes(StandardCharsets.UTF_8);
+
+      if (c.length <= 0 || variant == 0)
+        return null;
+
+      else {
+        int blen = c.length;
+        byte[] decoded = new byte[blen];
+        int[] decoded_len = new int[1];
+        int result = Sodium.sodium_base642bin(decoded, blen, c, c.length, null, decoded_len, null, variant);
+        if (result != 0)
+          return null;
+        else
+          return decoded;
+      }
+    }
+    catch (Throwable t) {
+      return null;
+    }
+  }
+
+  private String binToHex(final byte[] data) {
+    try {
+      if (data.length <= 0)
+        return null;
+
+      else {
+        int encoded_len = data.length * 2 + 1;
+        byte[] encoded = new byte[encoded_len];
+        Sodium.sodium_bin2hex(encoded, encoded_len, data, data.length);
+        return new String(encoded, StandardCharsets.UTF_8);
+      }
+    } catch (Throwable t) {
+      return null;
+    }
+  }
+
+  private byte[] hexToBin(String cipher) {
+    try {
+      byte[] c = cipher.getBytes(StandardCharsets.UTF_8);
+
+      if (c.length <= 0)
+        return null;
+
+      else {
+        int blen = c.length;
+        byte[] decoded = new byte[blen];
+        int[] decoded_len = new int[1];
+        int result = Sodium.sodium_hex2bin(decoded, blen, c, c.length, null, decoded_len, null);
+        if (result != 0)
+          return null;
+        else
+          return decoded;
+      }
+    } catch (Throwable t) {
+      return null;
+    }
+  }
 }

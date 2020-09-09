@@ -8,6 +8,22 @@ extern "C" {
 #endif
 
 /* *****************************************************************************
+ * Helpers
+ * *****************************************************************************
+ */
+
+// use only for copying values, returning values here from crypto won't work
+unsigned char* as_unsigned_char_array(JNIEnv *jenv, jbyteArray array) {
+    if (array == NULL) {
+        return NULL;
+    }
+    int len = (*jenv)->GetArrayLength (jenv, array);
+    unsigned char* buf = malloc(len);
+    (*jenv)->GetByteArrayRegion (jenv, array, 0, len, (jbyte*)(buf));
+    return buf;
+}
+
+/* *****************************************************************************
  * Sodium-specific functions
  * *****************************************************************************
  */
@@ -453,6 +469,85 @@ JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1sign_1ed25519_1s
   (*jenv)->ReleaseByteArrayElements(jenv, j_sk, (jbyte *) sk, 0);
   (*jenv)->ReleaseByteArrayElements(jenv, j_pk, (jbyte *) pk, 0);
   return (jint)result;
+}
+
+JNIEXPORT jint JNICALL
+Java_org_libsodium_jni_SodiumJNI_base64_1variant_1ORIGINAL(JNIEnv *env, jclass clazz) {
+    return (jint)sodium_base64_VARIANT_ORIGINAL;
+}
+
+JNIEXPORT jint JNICALL
+Java_org_libsodium_jni_SodiumJNI_base64_1variant_1VARIANT_1ORIGINAL_1NO_1PADDING(JNIEnv *env,
+                                                                                 jclass clazz) {
+    return (jint)sodium_base64_VARIANT_ORIGINAL_NO_PADDING;
+}
+
+JNIEXPORT jint JNICALL
+Java_org_libsodium_jni_SodiumJNI_base64_1variant_1VARIANT_1URLSAFE(JNIEnv *env, jclass clazz) {
+    return (jint)sodium_base64_VARIANT_URLSAFE;
+}
+
+JNIEXPORT jint JNICALL
+Java_org_libsodium_jni_SodiumJNI_base64_1variant_1VARIANT_1URLSAFE_1NO_1PADDING(JNIEnv *env,
+                                                                                jclass clazz) {
+    return (jint)sodium_base64_VARIANT_URLSAFE_NO_PADDING;
+}
+
+JNIEXPORT jint JNICALL
+Java_org_libsodium_jni_SodiumJNI_sodium_1base642bin(JNIEnv *jenv, jclass clazz, jbyteArray j_bin,
+                                                    jint j_bin_maxlen, jbyteArray j_b64, jint j_b64_len,
+                                                    jbyteArray j_ignore, jintArray j_bin_len,
+                                                    jbyteArray j_b64_end, jint j_variant) {
+    unsigned char *bin = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_bin, 0);
+    unsigned char *b64 = as_unsigned_char_array(jenv, j_b64);
+    unsigned char *ignore = as_unsigned_char_array(jenv, j_ignore);
+
+    int result = sodium_base642bin(bin, j_bin_maxlen, b64, j_b64_len, ignore, j_bin_len, j_b64_end, j_variant);
+    (*jenv)->ReleaseByteArrayElements(jenv, j_bin, (jbyte *) bin, 0);
+    return (jint)result;
+}
+
+JNIEXPORT jchar JNICALL
+Java_org_libsodium_jni_SodiumJNI_sodium_1bin2hex(JNIEnv *jenv, jclass clazz, jbyteArray j_hex,
+                                                 jint j_hex_maxlen, jbyteArray j_bin, jint j_bin_len) {
+    unsigned char *hex = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_hex, 0);
+    unsigned char *bin = as_unsigned_char_array(jenv, j_bin);
+
+    int result = sodium_bin2hex(hex, j_hex_maxlen, bin, j_bin_len);
+    (*jenv)->ReleaseByteArrayElements(jenv, j_hex, (jbyte *) hex, 0);
+    return (jint)result;
+}
+
+JNIEXPORT jint JNICALL
+Java_org_libsodium_jni_SodiumJNI_sodium_1hex2bin(JNIEnv *jenv, jclass clazz, jbyteArray j_bin,
+                                                 jint j_bin_maxlen, jbyteArray j_hex, jint j_hex_len,
+                                                 jbyteArray j_ignore, jintArray j_bin_len,
+                                                 jbyteArray j_hex_end) {
+    unsigned char *bin = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_bin, 0);
+    unsigned char *hex = as_unsigned_char_array(jenv, j_hex);
+    unsigned char *ignore = as_unsigned_char_array(jenv, j_ignore);
+
+    int result = sodium_hex2bin(bin, j_bin_maxlen, hex, j_hex_len, ignore,j_bin_len, j_hex_end);
+    (*jenv)->ReleaseByteArrayElements(jenv, j_bin, (jbyte *) bin, 0);
+    return (jint)result;
+}
+
+JNIEXPORT jchar JNICALL
+Java_org_libsodium_jni_SodiumJNI_sodium_1bin2base64(JNIEnv *jenv, jclass clazz, jbyteArray j_b64,
+                                                    jint j_b64_maxlen, jbyteArray j_bin, jint j_bin_len,
+                                                    jint j_variant) {
+    unsigned char *b64 = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_b64, 0);
+    unsigned char *bin = as_unsigned_char_array(jenv, j_bin);
+
+    int result = sodium_bin2base64(b64, j_b64_maxlen, bin, j_bin_len, j_variant);
+    (*jenv)->ReleaseByteArrayElements(jenv, j_b64, (jbyte *) b64, 0);
+    return (jint)result;
+}
+
+JNIEXPORT jint JNICALL
+Java_org_libsodium_jni_SodiumJNI_sodium_1base64_1encoded_1len(JNIEnv *jenv, jclass clazz,
+                                                              jint j_bin_len, jint j_variant) {
+    return (jint) sodium_base64_encoded_len(j_bin_len, j_variant);
 }
 
 #ifdef __cplusplus

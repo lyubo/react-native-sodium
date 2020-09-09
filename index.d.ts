@@ -320,6 +320,18 @@ declare module "react-native-sodium" {
     algo: number
   ): Promise<string>;
 
+
+  //
+  // Utils
+  //
+  export function to_base64(message: string, variant: number): Promise<string>;
+
+  export function from_base64(cipher: string, variant: number): Promise<string>;
+
+  export function to_hex(message: string): Promise<string>;
+
+  export function from_hex(cipher: string): Promise<string>;
+
   /**
    * Bytes of salt on password hashing, the pwhash* API.
    */
@@ -370,4 +382,12 @@ declare module "react-native-sodium" {
    * Version 1.3 of the Argon2id algorithm, available since libsodium 1.0.13.
    */
   export const crypto_pwhash_ALG_ARGON2ID13: number;
+
+  export const base64_variant_ORIGINAL: number;
+  
+  export const base64_variant_VARIANT_ORIGINAL_NO_PADDING: number;
+
+  export const base64_variant_VARIANT_URLSAFE: number;
+
+  export const base64_variant_VARIANT_URLSAFE_NO_PADDING: number;
 }

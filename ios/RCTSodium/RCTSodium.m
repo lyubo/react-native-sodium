@@ -487,4 +487,126 @@ RCT_EXPORT_METHOD(crypto_sign_ed25519_sk_to_pk:(NSString*)sk resolve: (RCTPromis
   }
 }
 
+// *****************************************************************************
+// * Utils
+// *****************************************************************************
+RCT_EXPORT_METHOD(to_base64:(NSString*)message variant:(NSNumber * _Nonnull)variant resolve: (RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+    NSData *m = [message dataUsingEncoding:NSUTF8StringEncoding];
+
+    if (m != nil || !variant) {
+        reject(ESODIUM, ERR_FAILURE, nil);
+    } else {
+        NSString *encodedString = [self binToBase64:m variant:variant];
+        if (encodedString == nil)
+            reject(ESODIUM, ERR_FAILURE, nil);
+        else {
+            resolve(encodedString);
+        }
+    }
+}
+
+RCT_EXPORT_METHOD(from_base64:(NSString*)cipher variant:(NSNumber * _Nonnull)variant resolve: (RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+    if (!cipher || !variant) {
+        reject(ESODIUM, ERR_FAILURE, nil);
+    } else {
+        NSData *result = [self base64ToBin:cipher variant:variant];
+        if (result == nil)
+            reject(ESODIUM, ERR_FAILURE, nil);
+        else {
+            NSString *decodedString = [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding];
+            resolve(decodedString);
+        }
+    }
+}
+
+RCT_EXPORT_METHOD(to_hex:(NSString*)message resolve: (RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+    NSData *m = [message dataUsingEncoding:NSUTF8StringEncoding];
+    NSString *result = [self binToHex:m];
+    if (result == nil) reject(ESODIUM, ERR_FAILURE, nil);
+    else {
+        resolve(result);
+    }
+}
+
+RCT_EXPORT_METHOD(from_hex:(NSString*)cipher resolve: (RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+    NSData *result = [self hexToBin:cipher];
+    if (result == nil) reject(ESODIUM, ERR_FAILURE, nil);
+    else {
+        const NSString *res = [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding];
+        resolve(res);
+    }
+}
+
+- (NSString *) binToBase64:(NSData*)bin variant:(NSNumber * _Nonnull)variant {
+    if (!bin || !variant) return nil;
+
+    else if (bin.length == 0) {
+        return nil;
+    } else {
+        const size_t max_len = sodium_base64_encoded_len(bin.length, [variant intValue]);
+        char * encoded = (char *) sodium_malloc(max_len);
+        @try {
+            sodium_bin2base64(encoded, max_len, [bin bytes], bin.length, [variant intValue]);
+            NSString *res = [NSString stringWithCString:encoded encoding:NSUTF8StringEncoding];
+            return res;
+        }
+        @catch (NSException *exception) {
+            return nil;
+        }
+    }
+}
+
+- (NSData * __strong) base64ToBin:(NSString*)cipher variant:(NSNumber * _Nonnull)variant {
+    const NSData *c = [cipher dataUsingEncoding:NSUTF8StringEncoding];
+
+    if (c && variant) {
+
+        // since libsodium doesn't provide the reverse of
+        // sodium_base64_encoded_len(size_t bin_len, int variant)
+        // to estimate bin_maxlen, we set it conservatively to
+        // the size of the base64 representation
+
+        size_t clen = [c length];
+        unsigned char * const decoded = (unsigned char * const) sodium_malloc(clen);
+        size_t decoded_len = [NSNumber numberWithLongLong: clen].unsignedLongLongValue;
+        if (sodium_base642bin(decoded, clen, [c bytes], clen, NULL, &decoded_len, NULL, [variant intValue]) != 0)
+            return nil;
+        else {
+            return [NSData dataWithBytesNoCopy:decoded length:decoded_len freeWhenDone:NO];
+        }
+    }
+    return nil;
+}
+
+- (NSString * __strong) binToHex:(NSData*)bin {
+    size_t hex_maxlen = [bin length] * 2 + 1;
+    char * const encoded = (char * const) sodium_malloc(hex_maxlen);
+    @try {
+        sodium_bin2hex(encoded, hex_maxlen, [bin bytes], [bin length]);
+        return [NSString stringWithCString:encoded encoding:NSUTF8StringEncoding];
+    }
+    @catch (NSException *exception) {
+        return nil;
+    }
+}
+
+- (NSData * __strong) hexToBin:(NSString*)hex {
+    const NSData *h = [hex dataUsingEncoding:NSUTF8StringEncoding];
+
+    size_t clen = [h length];
+    unsigned char * const encoded = (unsigned char * const) sodium_malloc(clen);
+    size_t decoded_len = [NSNumber numberWithLongLong: clen].unsignedLongLongValue;
+    if (sodium_hex2bin(encoded, clen, [h bytes], clen, NULL, &decoded_len, NULL) != 0) {
+        return nil;
+    }
+    else {
+        return [NSData dataWithBytesNoCopy:encoded length:decoded_len freeWhenDone:NO];
+    }
+}
+
+
 @end
