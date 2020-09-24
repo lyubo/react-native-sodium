@@ -494,7 +494,7 @@ RCT_EXPORT_METHOD(to_base64:(NSString*)message variant:(NSNumber * _Nonnull)vari
 {
     NSData *m = [message dataUsingEncoding:NSUTF8StringEncoding];
 
-    if (m != nil || !variant) {
+    if (m == nil || !variant) {
         reject(ESODIUM, ERR_FAILURE, nil);
     } else {
         NSString *encodedString = [self binToBase64:m variant:variant];
