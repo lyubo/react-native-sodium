@@ -204,8 +204,8 @@ declare module "react-native-sodium" {
    */
   export function crypto_scalarmult_base(secretKey: string): Promise<string>;
   export function crypto_scalarmult(
-    publicKey: string,
-    secretKey: string
+    secretKey: string,
+    publicKey: string
   ): Promise<string>;
 
   //
