@@ -476,7 +476,7 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
           p.resolve(Base64.encodeToString(q,Base64.NO_WRAP));
       }
     }
-    catch (Throwable t) { 
+    catch (Throwable t) {
       p.reject(ESODIUM,ERR_FAILURE,t);
     }
   }
