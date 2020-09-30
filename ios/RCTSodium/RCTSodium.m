@@ -373,6 +373,19 @@ RCT_EXPORT_METHOD(crypto_scalarmult_base:(NSString*)n resolve:(RCTPromiseResolve
     resolve([[NSData dataWithBytesNoCopy:q length:sizeof(q) freeWhenDone:NO] base64EncodedStringWithOptions:0]);
 }
 
+RCT_EXPORT_METHOD(crypto_scalarmult:(NSString*)n m:(NSString*)m resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+  const NSData *dn = [[NSData alloc] initWithBase64EncodedString:n options:0];
+  const NSData *dm = [[NSData alloc] initWithBase64EncodedString:m options:0];
+  unsigned char q[crypto_box_PUBLICKEYBYTES];
+  if (!dn) reject(ESODIUM,ERR_FAILURE, nil);
+  else if (dn.length != crypto_box_SECRETKEYBYTES) reject(ESODIUM, ERR_BAD_KEY, nil);
+  else if (crypto_scalarmult(q, [dn bytes, dm bytes]) != 0)
+    reject(ESODIUM,ERR_FAILURE, nil);
+  else
+    resolve([[NSData dataWithBytesNoCopy:q length:sizeof(q) freeWhenDone:NO] base64EncodedStringWithOptions:0]);
+}
+
 // *****************************************************************************
 // * Public-key cryptography - signatures
 // *****************************************************************************

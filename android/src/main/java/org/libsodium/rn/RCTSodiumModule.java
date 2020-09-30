@@ -481,6 +481,27 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
     }
   }
 
+  @ReactMethod
+  public void crypto_scalarmult(final String n, final String m, final Promise p) {
+    try {
+      byte[] nb = Base64.decode(n, Base64.NO_WRAP);
+      byte[] mb = Base64.decode(m, Base64.NO_WRAP);
+      if (nb.length != Sodium.crypto_box_secretkeybytes())
+        p.reject(ESODIUM,ERR_BAD_KEY);
+      else {
+        byte[] q = new byte[Sodium.crypto_box_publickeybytes()];
+        int result = Sodium.crypto_scalarmult(q, nb, mb);
+        if (result != 0)
+          p.reject(ESODIUM,ERR_BAD_KEY);
+        else{
+          p.resolve(Base64.encodeToString(q,Base64.NO_WRAP));}
+      }
+    }
+    catch (Throwable t) {
+      p.reject(ESODIUM,t);
+    }
+  }
+
   // ***************************************************************************
   // * Public-key cryptography - signatures
   // ***************************************************************************
