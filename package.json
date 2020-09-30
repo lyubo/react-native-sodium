@@ -8,7 +8,7 @@
     "postinstall": "tar -xzf precompiled.tgz",
     "rebuild": "./build.sh"
   },
-  "version": "0.3.8",
+  "version": "0.3.9",
   "description": "The Sodium crypto library for React Native.",
   "author": "Lyubomir Ivanov",
   "main": "index.js",
