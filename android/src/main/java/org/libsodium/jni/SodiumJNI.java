@@ -55,6 +55,8 @@ public class SodiumJNI {
   public final static native int crypto_pwhash_algo_argon2i13();
   public final static native int crypto_pwhash_algo_argon2id13();
 
+  public final static native int crypto_scalarmult_bytes();
+  public final static native int crypto_scalarmult_scalarbytes();
   public final static native int crypto_scalarmult_base(byte[] q, final byte[] n);
   public final static native int crypto_scalarmult(byte[] q, final byte[] n, final byte[] p);
 

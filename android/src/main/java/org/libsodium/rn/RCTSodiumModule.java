@@ -71,6 +71,8 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
      constants.put("crypto_pwhash_ALG_DEFAULT", Sodium.crypto_pwhash_algo_default());
      constants.put("crypto_pwhash_ALG_ARGON2I13", Sodium.crypto_pwhash_algo_argon2i13());
      constants.put("crypto_pwhash_ALG_ARGON2ID13", Sodium.crypto_pwhash_algo_argon2id13());
+     constants.put("crypto_scalarmult_BYTES", Sodium.crypto_scalarmult_bytes());
+     constants.put("crypto_scalarmult_SCALARBYTES", Sodium.crypto_scalarmult_scalarbytes());
 
      return constants;
   }
@@ -465,10 +467,10 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
   public void crypto_scalarmult_base(final String n, final Promise p) {
     try {
       byte[] nb = Base64.decode(n, Base64.NO_WRAP);
-      if (nb.length != Sodium.crypto_box_secretkeybytes())
+      if (nb.length != Sodium.crypto_scalarmult_scalarbytes())
         p.reject(ESODIUM,ERR_BAD_KEY);
       else {
-        byte[] q = new byte[Sodium.crypto_box_publickeybytes()];
+        byte[] q = new byte[Sodium.crypto_scalarmult_bytes()];
         int result = Sodium.crypto_scalarmult_base(q, nb);
         if (result != 0)
           p.reject(ESODIUM,ERR_BAD_KEY);
@@ -482,23 +484,23 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void crypto_scalarmult(final String n, final String m, final Promise p) {
+  public void crypto_scalarmult(final String n, final String p, final Promise pp) {
     try {
       byte[] nb = Base64.decode(n, Base64.NO_WRAP);
-      byte[] mb = Base64.decode(m, Base64.NO_WRAP);
-      if (nb.length != Sodium.crypto_box_secretkeybytes())
-        p.reject(ESODIUM,ERR_BAD_KEY);
+      byte[] pb = Base64.decode(p, Base64.NO_WRAP);
+      if (nb.length != Sodium.crypto_scalarmult_scalarbytes() || pb.length != Sodium.crypto_scalarmult_bytes())
+        pp.reject(ESODIUM,ERR_BAD_KEY);
       else {
-        byte[] q = new byte[Sodium.crypto_box_publickeybytes()];
-        int result = Sodium.crypto_scalarmult(q, nb, mb);
+        byte[] q = new byte[Sodium.crypto_scalarmult_bytes()];
+        int result = Sodium.crypto_scalarmult(q, nb, pb);
         if (result != 0)
-          p.reject(ESODIUM,ERR_BAD_KEY);
+          pp.reject(ESODIUM,ERR_BAD_KEY);
         else{
-          p.resolve(Base64.encodeToString(q,Base64.NO_WRAP));}
+          pp.resolve(Base64.encodeToString(q,Base64.NO_WRAP));}
       }
     }
     catch (Throwable t) {
-      p.reject(ESODIUM,t);
+      pp.reject(ESODIUM,t);
     }
   }
 

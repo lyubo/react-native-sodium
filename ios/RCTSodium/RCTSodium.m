@@ -66,7 +66,9 @@ RCT_EXPORT_MODULE();
     @"crypto_pwhash_MEMLIMIT_MAX":@crypto_pwhash_MEMLIMIT_MAX,
     @"crypto_pwhash_ALG_DEFAULT":@crypto_pwhash_ALG_DEFAULT,
     @"crypto_pwhash_ALG_ARGON2I13":@crypto_pwhash_ALG_ARGON2I13,
-    @"crypto_pwhash_ALG_ARGON2ID13":@crypto_pwhash_ALG_ARGON2ID13
+    @"crypto_pwhash_ALG_ARGON2ID13":@crypto_pwhash_ALG_ARGON2ID13,
+    @"crypto_scalarmult_BYTES":@crypto_scalarmult_BYTES,
+    @"crypto_scalarmult_SCALARBYTES":@crypto_scalarmult_SCALARBYTES
   };
 
 }
@@ -364,23 +366,23 @@ RCT_EXPORT_METHOD(crypto_box_seal_open:(NSString*)c pk:(NSString*)pk sk:(NSStrin
 RCT_EXPORT_METHOD(crypto_scalarmult_base:(NSString*)n resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
   const NSData *dn = [[NSData alloc] initWithBase64EncodedString:n options:0];
-  unsigned char q[crypto_box_PUBLICKEYBYTES];
-  if (!dn) reject(ESODIUM,ERR_FAILURE, nil);
-  else if (dn.length != crypto_box_SECRETKEYBYTES) reject(ESODIUM, ERR_BAD_KEY, nil);
+  unsigned char q[crypto_scalarmult_BYTES];
+  if (!dn || dn.length != crypto_scalarmult_SCALARBYTES)
+    reject(ESODIUM, ERR_BAD_KEY, nil);
   else if (crypto_scalarmult_base(q, [dn bytes]) != 0)
     reject(ESODIUM,ERR_FAILURE, nil);
   else
     resolve([[NSData dataWithBytesNoCopy:q length:sizeof(q) freeWhenDone:NO] base64EncodedStringWithOptions:0]);
 }
 
-RCT_EXPORT_METHOD(crypto_scalarmult:(NSString*)n m:(NSString*)m resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(crypto_scalarmult:(NSString*)n p:(NSString*)p resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
   const NSData *dn = [[NSData alloc] initWithBase64EncodedString:n options:0];
-  const NSData *dm = [[NSData alloc] initWithBase64EncodedString:m options:0];
-  unsigned char q[crypto_box_PUBLICKEYBYTES];
-  if (!dn) reject(ESODIUM,ERR_FAILURE, nil);
-  else if (dn.length != crypto_box_SECRETKEYBYTES) reject(ESODIUM, ERR_BAD_KEY, nil);
-  else if (crypto_scalarmult(q, [dn bytes, dm bytes]) != 0)
+  const NSData *dp = [[NSData alloc] initWithBase64EncodedString:p options:0];
+  unsigned char q[crypto_scalarmult_BYTES];
+  if (!dn || !dp || dn.length != crypto_scalarmult_SCALARBYTES || dp.length != crypto_scalarmult_BYTES)
+    reject(ESODIUM, ERR_BAD_KEY, nil);
+  else if (crypto_scalarmult(q, [dn bytes], [dp bytes]) != 0)
     reject(ESODIUM,ERR_FAILURE, nil);
   else
     resolve([[NSData dataWithBytesNoCopy:q length:sizeof(q) freeWhenDone:NO] base64EncodedStringWithOptions:0]);

@@ -347,6 +347,19 @@ JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1pwhash_1algo_1ar
   return (jint) crypto_pwhash_ALG_ARGON2ID13;
 }
 
+/* *****************************************************************************
+ * Advanced - Point*scalar multiplicaton
+ * *****************************************************************************
+ */
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1scalarmult_1bytes(JNIEnv *jenv, jclass jcls) {
+  return (jint)crypto_scalarmult_BYTES;
+}
+
+JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1scalarmult_1scalarbytes(JNIEnv *jenv, jclass jcls) {
+  return (jint)crypto_scalarmult_SCALARBYTES;
+}
+
 JNIEXPORT jint JNICALL Java_org_libsodium_jni_SodiumJNI_crypto_1scalarmult_1base(JNIEnv *jenv, jclass jcls, jbyteArray j_q, jbyteArray j_n) {
   unsigned char *q = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_q, 0);
   unsigned char *n = (unsigned char *) (*jenv)->GetByteArrayElements(jenv, j_n, 0);
