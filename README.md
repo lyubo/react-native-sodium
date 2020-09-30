@@ -17,8 +17,9 @@ Optionally, you can choose to compile libsodium by yourself (run __npm&nbsp;run&
 
 ### Usage
 
-1. npm install react-native-sodium
-2. npx react-native run-ios or npx react-native run-android
+1. npm install react-native-sodium --save
+2. npx pod-install
+3. npx react-native run-ios|run-android
 
 ### Help
 See [example application](https://github.com/lyubo/react-native-sodium-example).
