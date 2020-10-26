@@ -6,6 +6,9 @@ package org.libsodium.rn;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import android.util.Base64;
 import android.util.Log;
 
@@ -20,6 +23,12 @@ import com.facebook.react.common.MapBuilder;
 import org.libsodium.jni.Sodium;
 
 public class RCTSodiumModule extends ReactContextBaseJavaModule {
+
+  private static final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+  private void runOnExecutor(Runnable runnable) {
+    executor.execute(runnable);
+  }
 
   static final String ESODIUM = "ESODIUM";
   static final String ERR_BAD_KEY = "BAD_KEY";
@@ -402,20 +411,22 @@ public class RCTSodiumModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void crypto_pwhash(final Integer keylen, final String password, final String salt, final Integer opslimit, final Integer memlimit, final Integer algo , final Promise p) {
-    try {
-      byte[] saltb = Base64.decode(salt, Base64.NO_WRAP);
-      byte[] passwordb = Base64.decode(password, Base64.NO_WRAP);
-      byte[] out = new byte[keylen];
+    runOnExecutor(() -> {
+      try {
+        byte[] saltb = Base64.decode(salt, Base64.NO_WRAP);
+        byte[] passwordb = Base64.decode(password, Base64.NO_WRAP);
+        byte[] out = new byte[keylen];
 
-      int result = Sodium.crypto_pwhash(out, out.length, passwordb, passwordb.length, saltb, opslimit, memlimit, algo);
-      if (result != 0)
-        p.reject(ESODIUM,ERR_FAILURE);
-      else
-        p.resolve(Base64.encodeToString(out, Base64.NO_WRAP));
-    }
-    catch (Throwable t) {
-      p.reject(ESODIUM,ERR_FAILURE,t);
-    }
+        int result = Sodium.crypto_pwhash(out, out.length, passwordb, passwordb.length, saltb, opslimit, memlimit, algo);
+        if (result != 0)
+          p.reject(ESODIUM,ERR_FAILURE);
+        else
+          p.resolve(Base64.encodeToString(out, Base64.NO_WRAP));
+      }
+      catch (Throwable t) {
+        p.reject(ESODIUM,ERR_FAILURE,t);
+      }
+    });
   }
 
   @ReactMethod
