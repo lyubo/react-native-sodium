@@ -14,6 +14,7 @@ Pod::Spec.new do |s|
 
   s.source       = { :git => "https://github.com/lyubo/react-native-sodium.git", :tag => "v#{s.version}" }
   s.source_files  = ["ios/**/*.{h,m}","libsodium/libsodium-ios/**/*.{h,m}"]
+  s.header_mappings_dir = 'libsodium/libsodium-ios/include'
 
   s.vendored_libraries = 'libsodium/libsodium-ios/lib/libsodium.a'
   s.xcconfig = { 'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/Headers/Public/#{s.name}/**'}
