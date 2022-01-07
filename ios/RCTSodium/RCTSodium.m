@@ -5,8 +5,8 @@
 //  Created by Lyubomir Ivanov on 9/25/16.
 //  Copyright © 2016 Lyubomir Ivanov. All rights reserved.
 //
-#import "RCTBridgeModule.h"
-#import "RCTUtils.h"
+#import <React/RCTBridgeModule.h>
+#import <React/RCTUtils.h>
 #import "sodium.h"
 
 #import "RCTSodium.h"
