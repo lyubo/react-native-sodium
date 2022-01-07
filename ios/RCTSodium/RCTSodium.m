@@ -67,6 +67,10 @@ RCT_EXPORT_MODULE();
     @"crypto_pwhash_ALG_DEFAULT":@crypto_pwhash_ALG_DEFAULT,
     @"crypto_pwhash_ALG_ARGON2I13":@crypto_pwhash_ALG_ARGON2I13,
     @"crypto_pwhash_ALG_ARGON2ID13":@crypto_pwhash_ALG_ARGON2ID13,
+    @"crypto_pwhash_BYTES_MAX":@crypto_pwhash_BYTES_MAX,
+    @"crypto_pwhash_BYTES_MIN":@crypto_pwhash_BYTES_MIN,
+    @"crypto_pwhash_PASSWD_MAX":@crypto_pwhash_PASSWD_MAX,
+    @"crypto_pwhash_PASSWD_MIN":@crypto_pwhash_PASSWD_MIN,
     @"crypto_scalarmult_BYTES":@crypto_scalarmult_BYTES,
     @"crypto_scalarmult_SCALARBYTES":@crypto_scalarmult_SCALARBYTES
   };
@@ -218,6 +222,21 @@ RCT_EXPORT_METHOD(crypto_box_keypair:(RCTPromiseResolveBlock)resolve reject:(RCT
 {
   unsigned char pk[crypto_box_PUBLICKEYBYTES],sk[crypto_box_SECRETKEYBYTES];
   if ( crypto_box_keypair(pk,sk) == 0) {
+    NSString *pk64 = [[NSData dataWithBytesNoCopy:pk length:sizeof(pk) freeWhenDone:NO]  base64EncodedStringWithOptions:0];
+    NSString *sk64 = [[NSData dataWithBytesNoCopy:sk length:sizeof(sk) freeWhenDone:NO]  base64EncodedStringWithOptions:0];
+    if (!pk64 || !sk64) reject(ESODIUM,ERR_FAILURE,nil); else resolve(@{@"pk":pk64, @"sk":sk64});
+  }
+  else
+    reject(ESODIUM,ERR_FAILURE,nil);
+}
+
+RCT_EXPORT_METHOD(crypto_box_seed_keypair:(NSString*)seed resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+{
+  unsigned char pk[crypto_box_PUBLICKEYBYTES],sk[crypto_box_SECRETKEYBYTES];
+  const NSData *dseed = [[NSData alloc] initWithBase64EncodedString:seed options:0];
+  if (!dseed) reject(ESODIUM,ERR_FAILURE,nil);
+  else if (dseed.length != crypto_box_SEEDBYTES) reject(ESODIUM,ERR_BAD_SEED,nil);
+  else if (crypto_box_seed_keypair(pk,sk,dseed) == 0) {
     NSString *pk64 = [[NSData dataWithBytesNoCopy:pk length:sizeof(pk) freeWhenDone:NO]  base64EncodedStringWithOptions:0];
     NSString *sk64 = [[NSData dataWithBytesNoCopy:sk length:sizeof(sk) freeWhenDone:NO]  base64EncodedStringWithOptions:0];
     if (!pk64 || !sk64) reject(ESODIUM,ERR_FAILURE,nil); else resolve(@{@"pk":pk64, @"sk":sk64});

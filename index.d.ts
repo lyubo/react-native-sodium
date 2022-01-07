@@ -126,6 +126,16 @@ declare module "react-native-sodium" {
   export const crypto_box_SECRETKEYBYTES: number;
 
   /**
+   * Bytes of shared key computes by an public key and a secret key on public-key cryptography, authenticated encryption
+   */
+  export const crypto_box_BEFORENMBYTES: number;
+
+  /**
+   * Bytes of seed
+   */
+  export const crypto_box_SEEDBYTES: number;
+
+  /**
    * Bytes of nonce on public-key cryptography, authenticated encryption
    */
   export const crypto_box_NONCEBYTES: number;
@@ -136,12 +146,12 @@ declare module "react-native-sodium" {
   export const crypto_box_MACBYTES: number;
 
   /**
-   *
+   * Bytes internally used to prepended zeros
    */
   export const crypto_box_ZEROBYTES: number;
 
   /**
-   *
+   * Bytes used on messages on public-key cryptography, sealed boxes
    */
   export const crypto_box_SEALBYTES: number;
 
@@ -149,6 +159,11 @@ declare module "react-native-sodium" {
    * Randomly generates a secret key (sk) and a corresponding public key (pk).
    */
   export function crypto_box_keypair(): Promise<{ sk: string; pk: string }>;
+
+  /**
+   * Deterministically derive from a single key seed, a secret key (sk) and a corresponding public key (pk).
+   */
+  export function crypto_box_seed_keypair(seed: string): Promise<{ sk: string; pk: string }>;
 
   /**
    * Encrypts a message, with a recipient's public key, a sender's secret key and a nonce.
@@ -360,7 +375,7 @@ declare module "react-native-sodium" {
   export const crypto_pwhash_MEMLIMIT_MAX: number;
 
   /**
-   * Tthe currently recommended algorithm, which can change from one version of libsodium to another.
+   * The currently recommended algorithm, which can change from one version of libsodium to another.
    * On password hashing, the pwhash* API.
    */
   export const crypto_pwhash_ALG_DEFAULT: number;
@@ -374,4 +389,24 @@ declare module "react-native-sodium" {
    * Version 1.3 of the Argon2id algorithm, available since libsodium 1.0.13.
    */
   export const crypto_pwhash_ALG_ARGON2ID13: number;
+  
+  /**
+   * Max bytes of out key on password hashing, the pwhash* API.
+   */
+  export const crypto_pwhash_BYTES_MAX: number;
+
+  /**
+  * Min bytes of out key on password hashing, the pwhash* API.
+  */
+  export const crypto_pwhash_BYTES_MIN: number;
+
+  /**
+  * Max bytes of password on password hashing, the pwhash* API.
+  */
+  export const crypto_pwhash_PASSWD_MAX: number;
+
+  /**
+  * Min bytes of password on password hashing, the pwhash* API.
+  */
+  export const crypto_pwhash_PASSWD_MIN: number;
 }
