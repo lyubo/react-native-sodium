@@ -1,8 +1,8 @@
 {
   "name": "react-native-sodium",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/lyubo/react-native-sodium.git"
+    "type": "git",
+    "url": "https://github.com/lyubo/react-native-sodium.git"
   },
   "scripts": {
     "postinstall": "tar -xzf precompiled.tgz",
@@ -20,5 +20,8 @@
     "crypto",
     "nacl",
     "sodium"
-  ]
+  ],
+  "devDependencies": {
+    "@expo/config-plugins": "^4.1.0"
+  }
 }
